@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Entries</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #file-list {
+            max-width: 600px;
+            margin: 0 auto;
+            list-style: none;
+            padding: 0;
+        }
+        #file-list li {
+            margin: 10px 0;
+        }
+        #file-list a {
+            text-decoration: none;
+            color: #0366d6;
+            font-size: 18px;
+        }
+        #file-list a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<h1>Blog Entries</h1>
+<ul id="file-list">Loading...</ul>
+
+<script>
+    // GitHub API 获取目录列表
+    const repo = 'HotGold90000/GoodLike';
+    // const path = 'pages';
+    const path = 'articles';
+    const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(files => {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = ''; // 清空加载提示
+
+            // 过滤并渲染 .md 文件
+            files.forEach(file => {
+                if (file.name.endsWith('.md')) {
+                    const listItem = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = `article.html?file=${file.name}`;
+                    link.textContent = file.name.replace('.md', '');
+                    listItem.appendChild(link);
+                    fileList.appendChild(listItem);
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading file list:', error);
+            document.getElementById('file-list').innerHTML = '<li>Failed to load files.</li>';
+        });
+</script>
+</body>
+</html>

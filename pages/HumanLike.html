@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Like</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        #main {
+            display: flex;
+        }
+        #map {
+            display: grid;
+            grid-template-columns: repeat(50, 15px);
+            grid-template-rows: repeat(50, 15px);
+            gap: 1px;
+            margin-right: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+        .cell {
+            width: 15px;
+            height: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+        .flag {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-10%);
+            width: 30px;
+            height: 30px;
+            background: url('../src/flag.png') no-repeat center center / contain;
+        }
+        .sugar-high {
+            background-color: #8B4513;
+        }
+        .sugar-medium {
+            background-color: #D2B48C;
+        }
+        .sugar-low {
+            background-color: #F5DEB3;
+        }
+        .sugar-less {
+            background-color: #FAEBD7;
+        }
+        .no-sugar {
+            background-color: #FFFFFF;
+        }
+        .agent {
+            color: #fff;
+        }
+        .agent-origin-high {
+            background-color: #FF4500; /* OrangeRed */
+        }
+        .agent-origin-medium {
+            background-color: #FFD700; /* Gold */
+        }
+        .agent-origin-low {
+            background-color: #87cefa; /* 亮天蓝色 */
+        }
+        .agent-origin-less {
+            background-color: #00CED1; /* DarkTurquoise */
+        }
+        .agent-origin-none {
+            background-color: #A9A9A9; /* DarkGray */
+        }
+        #controls {
+            display: flex;
+            flex-direction: column;
+            margin-left: 20px;
+        }
+        #controls button {
+            margin-bottom: 5px;
+            width: 100px;
+        }
+        #status {
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 450px;
+            width: 600px;
+            margin-top: 20px;
+        }
+        #chart {
+            width: 600px;
+            height: 400px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+        #roundCounter {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #totalAgents {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #totalSugar {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<h1>House Like</h1>
+<div id="main">
+    <div id="map">
+        ${Array.from({ length: 50 * 50 }).map(() => '<div class="cell no-sugar"></div>').join('')}
+    </div>
+    <div>
+        <canvas id="chart"></canvas>
+        <div id="status">
+            <h4>Status Show</h4>
+            <div id="statusContent">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Agent ID</th>
+                        <th>Location</th>
+                        <th>Sugar Num</th>
+                        <th>Vision</th>
+                        <th>Dig</th>
+                    </tr>
+                    </thead>
+                    <tbody id="statusTableBody">
+                    <tr>
+                        <td colspan="5">Empty Nothing</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="controls">
+        <button onclick="startSimulation()">Start</button>
+        <button id="toggleSimulation" onclick="toggleSimulation()">Pause</button>
+        <button onclick="resetSimulation()">Reset</button>
+        <button onclick="clearFlags()">Clear Flags</button>
+        <label for="recoveryRate">Recover Speed：</label>
+        <input type="number" id="recoveryRate" value="1" min="0" max="4">
+        <label for="segments">X Scales：</label>
+        <input type="number" id="segments" value="15" min="1">
+        <label for="numAgents">Init Num：</label>
+        <input type="number" id="numAgents" value="500" min="1">
+        <div>
+            <label for="clearDeadBodies">Remove Deads：</label>
+            <input type="checkbox" id="clearDeadBodies">
+        </div>
+        <div id="roundCounter">Rounds Num: 0</div>
+        <div id="totalAgents">Agents Num: 0</div>
+        <div id="totalSugar">Sugars Num: 0</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const mapSize = 50;
+    const initialSugarLevels = [4, 3, 2, 1];
+    const sugarRadii = [6, 12, 22, 32];
+    let agents = [];
+    let map = [];
+    let simulationInterval;
+    let chart;
+    let round = 0;
+    let selectedAgentId = null;
+
+    function createMap() {
+        map = Array.from({ length: mapSize }, (_, y) =>
+            Array.from({ length: mapSize }, (_, x) => {
+                const sugarLevel1 = getSugarLevel(x, y, 10, 40);
+                const sugarLevel2 = getSugarLevel(x, y, 40, 10);
+                const sugarLevel = Math.max(sugarLevel1, sugarLevel2);
+                return { sugar: sugarLevel, initialSugar: sugarLevel, type: getSugarType(sugarLevel) };
+            })
+        );
+    }
+
+    function getSugarLevel(x, y, centerX, centerY) {
+        const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+        for (let i = 0; i < sugarRadii.length; i++) {
+            if (distance <= sugarRadii[i]) {
+                return initialSugarLevels[i];
+            }
+        }
+        return 0;
+    }
+
+    function getSugarType(sugarLevel) {
+        if (sugarLevel === 4) return 'sugar-high';
+        if (sugarLevel === 3) return 'sugar-medium';
+        if (sugarLevel === 2) return 'sugar-low';
+        if (sugarLevel > 0) return 'sugar-less';
+        return 'no-sugar';
+    }
+
+    function getAgentOriginBySugarLevel(sugarLevel) {
+        if (sugarLevel === 4) return 'origin-high';
+        if (sugarLevel === 3) return 'origin-medium';
+        if (sugarLevel === 2) return 'origin-low';
+        if (sugarLevel === 1) return 'origin-less';
+        return 'origin-none';
+    }
+
+    function createAgents(numAgents) {
+        agents = [];
+        for (let i = 0; i < numAgents; i++) {
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * mapSize);
+                y = Math.floor(Math.random() * mapSize);
+            } while (agents.some(agent => agent.x === x && agent.y === y));
+            const sugarLevel = map[y][x].initialSugar;
+            const origin = getAgentOriginBySugarLevel(sugarLevel);
+            agents.push({
+                id: i,
+                x,
+                y,
+                sugar: 10,
+                vision: Math.floor(Math.random() * 6) + 1,
+                metabolism: Math.floor(Math.random() * 4) + 1,
+                origin
+            });
+        }
+    }
+
+    function renderMap() {
+        const mapElement = document.getElementById('map');
+        const statusTableBody = document.getElementById('statusTableBody');
+        mapElement.innerHTML = '';
+        statusTableBody.innerHTML = '';
+        agents.sort((a, b) => b.sugar - a.sugar);
+        agents.forEach(agent => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${agent.id}</td>
+                <td>(${agent.x}, ${agent.y})</td>
+                <td>${agent.sugar}</td>
+                <td>${agent.vision}</td>
+                <td>${agent.metabolism}</td>
+            `;
+            statusTableBody.appendChild(row);
+        });
+        for (let y = 0; y < mapSize; y++) {
+            for (let x = 0; x < mapSize; x++) {
+                const cell = document.createElement('div');
+                cell.className = `cell ${map[y][x].type}`;
+                const agent = agents.find(agent => agent.x === x && agent.y === y);
+                if (agent) {
+                    cell.classList.add('agent', `agent-${agent.origin}`);
+                    cell.textContent = agent.id;
+                    cell.addEventListener('click', () => toggleFlag(agent.id));
+                    if (agent.id === selectedAgentId) {
+                        const flag = document.createElement('div');
+                        flag.className = 'flag';
+                        cell.appendChild(flag);
+                    }
+                }
+                mapElement.appendChild(cell);
+            }
+        }
+        updateChart();
+    }
+
+    function toggleFlag(agentId) {
+        if (selectedAgentId === agentId) {
+            selectedAgentId = null;
+        } else {
+            selectedAgentId = agentId;
+        }
+        renderMap();
+    }
+
+    function clearFlags() {
+        selectedAgentId = null;
+        renderMap();
+    }
+
+    function startSimulation() {
+        if (simulationInterval) return;
+        createMap();
+        const numAgents = parseInt(document.getElementById('numAgents').value, 10);
+        createAgents(numAgents);
+        simulationInterval = setInterval(simulateRound, 1000);
+        document.getElementById('toggleSimulation').textContent = 'Pause';
+    }
+
+    function stopSimulation() {
+        clearInterval(simulationInterval);
+        simulationInterval = null;
+        document.getElementById('toggleSimulation').textContent = 'Continue';
+    }
+
+    function toggleSimulation() {
+        if (simulationInterval) {
+            stopSimulation();
+        } else {
+            continueSimulation();
+        }
+    }
+
+    function continueSimulation() {
+        if (!simulationInterval) {
+            simulationInterval = setInterval(simulateRound, 1000);
+            document.getElementById('toggleSimulation').textContent = 'Pause';
+        }
+    }
+
+    function resetSimulation() {
+        stopSimulation();
+        agents.length = 0;
+        round = 0;
+        document.getElementById('roundCounter').textContent = `Rounds Num: ${round}`;
+        document.getElementById('totalAgents').textContent = `Agents Num: ${agents.length}`;
+        document.getElementById('totalSugar').textContent = `Sugars Num: 0`;
+        clearFlags()
+        renderMap();
+    }
+
+    function moveAgent(agent) {
+        const directions = [
+            { x: 0, y: -1 }, // North
+            { x: 1, y: 0 },  // East
+            { x: 0, y: 1 },  // South
+            { x: -1, y: 0 }, // West
+            { x: 0, y: 0 }   // Stay
+        ];
+        const { bestDirections, subBestDirections } = findBestDirections(agent, directions);
+        let moved = tryMove(agent, bestDirections);
+        if (!moved) {
+            tryMove(agent, subBestDirections);
+        }
+    }
+
+    function findBestDirections(agent, directions) {
+        let bestDirections = [];
+        let subBestDirections = [];
+        let maxSugar = -1;
+        for (let vision = 1; vision <= agent.vision; vision++) {
+            directions.forEach(direction => {
+                const newX = agent.x + direction.x * vision;
+                const newY = agent.y + direction.y * vision;
+                if (newX >= 0 && newX < mapSize && newY >= 0 && newY < mapSize) {
+                    const sugarValue = agents.some(a => a.x === newX && a.y === newY) ? -1 : map[newY][newX].sugar;
+                    if (sugarValue > maxSugar) {
+                        maxSugar = sugarValue;
+                        subBestDirections = bestDirections;
+                        bestDirections = [{ x: newX, y: newY }];
+                    } else if (sugarValue === maxSugar) {
+                        bestDirections.push({ x: newX, y: newY });
+                    }
+                }
+            });
+        }
+        return { bestDirections, subBestDirections };
+    }
+
+    function tryMove(agent, directionsList) {
+        while (directionsList.length > 0) {
+            let targetIndex = Math.floor(Math.random() * directionsList.length);
+            const chosenDirection = directionsList[targetIndex];
+            const newX = agent.x + Math.sign(chosenDirection.x - agent.x);
+            const newY = agent.y + Math.sign(chosenDirection.y - agent.y);
+            if (!agents.some(a => a.x === newX && a.y === newY)) {
+                agent.x = newX;
+                agent.y = newY;
+                return true;
+            } else {
+                directionsList.splice(targetIndex, 1);
+            }
+        }
+        return false;
+    }
+
+    function simulateRound() {
+        round++;
+        const clearDeadBodies = document.getElementById('clearDeadBodies').checked;
+        agents.forEach(agent => {
+            if (agent.sugar <= 0) {
+                if (clearDeadBodies) {
+                    agents.splice(agents.indexOf(agent), 1);
+                } else {
+                    agent.dead = true;
+                }
+                return;
+            }
+            moveAgent(agent);
+            consumeSugar(agent);
+        });
+        recoverSugar();
+        renderMap();
+        document.getElementById('roundCounter').textContent = `Rounds Num: ${round}`;
+        document.getElementById('totalAgents').textContent = `Agents Num: ${agents.length}`;
+        const totalSugar = agents.reduce((sum, agent) => sum + agent.sugar, 0);
+        document.getElementById('totalSugar').textContent = `Sugars Num: ${totalSugar}`;
+    }
+
+    function consumeSugar(agent) {
+        agent.sugar += map[agent.y][agent.x].sugar;
+        map[agent.y][agent.x].sugar = 0;
+        map[agent.y][agent.x].type = getSugarType(map[agent.y][agent.x].sugar);
+        agent.sugar -= agent.metabolism;
+    }
+
+    function recoverSugar() {
+        const recoveryRate = parseInt(document.getElementById('recoveryRate').value, 10);
+        for (let y = 0; y < mapSize; y++) {
+            for (let x = 0; x < mapSize; x++) {
+                const initialSugarLevel = map[y][x].initialSugar;
+                map[y][x].sugar = Math.min(map[y][x].sugar + recoveryRate, initialSugarLevel);
+                map[y][x].type = getSugarType(map[y][x].sugar);
+            }
+        }
+    }
+
+    function updateChart() {
+        const sugarLevels = agents.map(agent => agent.sugar);
+        const maxSugar = Math.max(...sugarLevels, 0);
+        const segments = parseInt(document.getElementById('segments').value, 10);
+        const segmentWidth = Math.ceil(maxSugar / segments);
+        const sugarCounts = Array(segments).fill(0);
+
+        sugarLevels.forEach(sugar => {
+            const segment = Math.min(Math.floor(sugar / segmentWidth), segments - 1);
+            sugarCounts[segment]++;
+        });
+
+        const labels = sugarCounts.map((_, i) => `${i * segmentWidth}-${(i + 1) * segmentWidth}`);
+
+        if (!chart) {
+            const ctx = document.getElementById('chart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Agents',
+                        data: sugarCounts,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                        },
+                        y: {
+                            beginAtZero: true,
+                        }
+                    },
+                    plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'end',
+                            formatter: function(value, context) {
+                                return value;
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = sugarCounts;
+            chart.update();
+        }
+    }
+    renderMap();
+</script>
+</body>
+</html>

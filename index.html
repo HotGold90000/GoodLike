@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Navigation</title>
+    <link rel="icon"
+          href="https://cdn-static.sspai.com/ui/otter_avatar_placeholder_240511.png?imageMogr2/auto-orient/thumbnail/!200x200r/gravity/center/crop/200x200/format/webp/ignore-error/1"
+          type="image/png"> <!-- icon of Web browser bookmark-->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            background: #f0f0f0 url('src/marcopolos_1271_1295.png') center/cover fixed no-repeat;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.15); /* 黑色半透明遮罩 , 可以在保持背景图片可见的同时，提高前景内容的可读性 */
+            z-index: -1;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 10px;
+        }
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .grid-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .grid-item a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #555;
+            width: 100%;
+        }
+        .grid-item img {
+            width: 50px;
+            height: 50px;
+            margin-right: 20px;
+            transition: transform 0.3s;
+        }
+        .grid-item img:hover {
+            transform: rotate(360deg);
+        }
+        .grid-item .content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .grid-item p {
+            margin: 0;
+            color: #555;
+            text-align: left;
+        }
+        .grid-item .remark {
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+        }
+        .search-bar {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 10px 40px 10px 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .search-bar .search-icon {
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .fixed-width .grid-container {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    </style>
+</head>
+<body>
+
+<button class="mode-toggle" id="modeToggle">切换模式</button>
+
+<div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Find Webs...">
+    <img src="https://img.icons8.com/ios-filled/50/000000/search.png" class="search-icon" alt="Search Icon">
+</div>
+
+<div id="sectionsContainer"></div>
+
+<script>
+    function createSection(section) {
+        const sectionContainer = document.createElement('div');
+        const sectionTitle = document.createElement('h2');
+        sectionTitle.textContent = section.title;
+        sectionContainer.appendChild(sectionTitle);
+
+        const gridContainer = document.createElement('div');
+        gridContainer.className = 'grid-container';
+        gridContainer.id = section.id;
+        sectionContainer.appendChild(gridContainer);
+        loadGrid(gridContainer, section.items);
+        return sectionContainer;
+    }
+
+    function loadGrid(container, items) {
+        container.innerHTML = '';
+        items.forEach(item => {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.innerHTML = `
+                <a href="${item.url}" target="_blank">
+                    <img src="${item.img}" alt="${item.name}">
+                    <div class="content">
+                        <p>${item.name}</p>
+                        <p class="remark">${item.remark}</p>
+                    </div>
+                </a>
+            `;
+            container.appendChild(gridItem);
+        });
+    }
+
+    function openInNewWindow(url) {
+        window.open(url, '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,top=50,left=50,width=800,height=600');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const sectionsContainer = document.getElementById('sectionsContainer');
+        config.sections.forEach(section => {
+            const sectionElement = createSection(section);
+            sectionsContainer.appendChild(sectionElement);
+        });
+    });
+
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function() {
+        const filter = searchInput.value.toLowerCase();
+        config.sections.forEach(section => {
+            const gridContainer = document.getElementById(section.id);
+            const gridItems = gridContainer.getElementsByClassName('grid-item');
+            for (let i = 0; i < gridItems.length; i++) {
+                const item = gridItems[i];
+                const text = item.textContent || item.innerText;
+                item.style.display = text.toLowerCase().includes(filter) ? '' : 'none';
+            }
+        });
+    });
+
+    const modeToggle = document.getElementById('modeToggle');
+    modeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('fixed-width');
+        if (document.body.classList.contains('fixed-width')) {
+            modeToggle.textContent = 'To Adaptive Mode'; //切换为自适应模式
+        } else {
+            modeToggle.textContent = 'To Fixed Mode'; //切换为固定宽度模式
+        }
+    });
+
+    document.body.classList.add('fixed-width');
+    modeToggle.textContent = 'To Adaptive Mode'; // 默认设置为固定宽度模式
+
+
+    //配置文件
+    //config.json不能独立出文件，原因是浏览器的安全机制主要是为了防止跨站脚本攻击（XSS）和其他安全问题，限制了从本地文件系统直接读取文件的操作
+    //这不仅限于 .json 文件，实际上任何类型的文件（如 .txt, .xml, .csv 等）都受到相同的限制
+    const config = {
+        "sections": [
+            {
+                "title": "Robots",
+                "id": "gridContainer1",
+                "items": [
+                    {
+                        "name": "XChatBot",
+                        "url": "https://xchatbot.xdf.cn/web/chat/c56276cc8589498353e9126faa513331",
+                        "img": "https://oss-xlss.xdf.cn/xzgpt-resource/template/avatar/xz-male-avatar.png",
+                        "remark": "An AI chatbot for various purposes."
+                    },
+                    {
+                        "name": "DeepSeek",
+                        "url": "https://chat.deepseek.com/",
+                        "img": "https://img.icons8.com/?size=100&id=YWOidjGxCpFW&format=png&color=000000",
+                        "remark": "观点信息的解析比较详细"
+                    },
+                    {
+                        "name": "ChatOS",
+                        "url": "https://chat18.aichatos98.com/#/chat/1730085642764",
+                        "img": "https://img.icons8.com/?size=100&id=FBO05Dys9QCg&format=png&color=000000",
+                        "remark": "局域网内可用的镜像GPT\n只能本地使用，无法多端互通数据"
+                    },
+                    {
+                        "name": "Tongyi",
+                        "url": "https://tongyi.aliyun.com/qianwen/",
+                        "img": "https://img.alicdn.com/imgextra/i4/O1CN01EfJVFQ1uZPd7W4W6i_!!6000000006051-2-tps-112-112.png",
+                        "remark": "慎用! 通义认为朝鲜非独裁"
+                    }
+                ]
+            },
+            {
+                "title": "Docs",
+                "id": "gridContainer2",
+                "items": [
+                    {
+                        "name": "Docs Home",
+                        "url": "https://k40lgae11i.feishu.cn/drive/home/",
+                        "img": "https://p1-hera.feishucdn.com/tos-cn-i-jbbdkfciu3/84a9f036fe2b44f99b899fff4beeb963~tplv-jbbdkfciu3-image:0:0.image",
+                        "remark": "Feishu Lark doc's home page"
+                    }
+
+                ]
+            },
+            {
+                "title": "Tools-Work",
+                "id": "gridContainer3",
+                "items": [
+                    {
+                        "name": "QA Tool",
+                        "url": "http://qa.yclassroom.com/dashboard/Index",
+                        "img": "http://qa.yclassroom.com/assets/header.1b5fa5f8.jpg",
+                        "remark": "CloudClass QA Tools"
+                    }
+                ]
+            },
+            {
+                "title": "Readings",
+                "id": "gridContainer4",
+                "items": [
+                    {
+                        "name": "Reddit",
+                        "url": "https://www.reddit.com/",
+                        "img": "https://static-00.iconduck.com/assets.00/reddit-icon-1024x1024-6c2aoary.png",
+                        "remark": "Info community"
+                    },
+                    {
+                        "name": "Tophub",
+                        "url": "https://tophub.today/",
+                        "img": "https://file.ipadown.com/tophub/assets/images/logo.png",
+                        "remark": "Aggregated news and articles."
+                    },
+                    {
+                        "name": "Wikipedia",
+                        "url": "https://www.wikipedia.org/",
+                        "img": "https://zh.wikipedia.org/static/images/icons/wikipedia.png",
+                        "remark": "局域网内无法访问, 需要科学上网"
+                    },
+                    {
+                        "name": "Quora",
+                        "url": "https://www.quora.com/",
+                        "img": "https://ts4.tc.mm.bing.net/th/id/OSAAS.777FC27383CA52BA3DF3AB04CAB4F66B?w=72&h=72&c=1&rs=1&o=6&pid=TechQna",
+                        "remark": "Info community"
+                    }
+                ]
+            },
+            {
+                "title": "Tools-Pic",
+                "id": "gridContainer5",
+                "items": [
+                    {
+                        "name": "Colab",
+                        "url": "https://colab.research.google.com/#scrollTo=Wf5KrEb6vrkR",
+                        "img": "https://azhar.blog.uma.ac.id/wp-content/uploads/2023/05/google-colaboratory6512.jpg",
+                        "remark": "build chart pic by python codes"
+                    },{
+                        "name": "Icons8",
+                        "url": "https://icons8.com/icons",
+                        "img": "https://goodies.icons8.com/web/common/header/logo/logo-icons8.svg",
+                        "remark": "support ICON download and link copy"
+                    },
+                    {
+                        "name": "Picsman",
+                        "url": "https://www.picsman.ai/zh-cn/create?type=tool",
+                        "img": "https://www.picsman.ai/images/b_tools_active.svg",
+                        "remark": "支持自动去除图片杂物文字等"
+                    }
+                ]
+            }
+        ]
+    };
+</script>
+</body>
+</html>

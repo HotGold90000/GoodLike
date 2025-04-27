@@ -26,7 +26,8 @@
 <div id="content">Loading...</div>
 <p><a href="pageEnter.html">Back to Blog Entries</a></p>
 
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- 使用正确的 marked.js CDN 链接 -->
+<script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.min.js"></script>
 <script>
     // 获取 URL 参数中的文件名
     const urlParams = new URLSearchParams(window.location.search);
@@ -34,12 +35,19 @@
 
     if (file) {
         // 加载并解析 Markdown 文件
-        // const fileUrl = `https://raw.githubusercontent.com/HotGold90000/GoodLike/main/pages/${file}`;
         const fileUrl = `https://raw.githubusercontent.com/HotGold90000/GoodLike/main/articles/${file}`;
+        console.log('Loading file:', fileUrl); // 调试信息
+
         fetch(fileUrl)
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('File not found');
+                }
+                return response.text();
+            })
             .then(text => {
-                const htmlContent = marked(text);
+                // 使用 marked.parse() 解析 Markdown
+                const htmlContent = marked.parse(text);
                 document.getElementById('content').innerHTML = htmlContent;
             })
             .catch(error => {

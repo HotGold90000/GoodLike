@@ -8,10 +8,14 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f0f0f0; /* 护眼背景色 */
+            color: #333; /* 文字颜色 */
         }
         #content {
             max-width: 800px;
             margin: 0 auto;
+            padding-left: 20px; /* 内容居左 */
+            line-height: 1.6; /* 行高 */
         }
         a {
             color: #0366d6;
@@ -20,13 +24,39 @@
         a:hover {
             text-decoration: underline;
         }
+        #loading {
+            display: none;
+            font-size: 18px;
+            color: #0366d6;
+        }
+        /* Markdown 渲染样式 */
+        #content h1, #content h2, #content h3 {
+            color: #0366d6;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        #content p {
+            margin: 10px 0;
+        }
+        #content code {
+            background-color: #e0e0e0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        #content pre {
+            background-color: #e0e0e0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body>
-<div id="content">Loading...</div>
+<div id="loading">Loading...</div>
+<div id="content"></div>
 <p><a href="pageEnter.html">Back to Blog Entries</a></p>
 
-<!-- 使用正确的 marked.js CDN 链接 -->
 <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.min.js"></script>
 <script>
     // 获取 URL 参数中的文件名
@@ -34,6 +64,9 @@
     const file = urlParams.get('file');
 
     if (file) {
+        // 显示加载动画
+        document.getElementById('loading').style.display = 'block';
+
         // 加载并解析 Markdown 文件
         const fileUrl = `https://raw.githubusercontent.com/HotGold90000/GoodLike/main/articles/${file}`;
         console.log('Loading file:', fileUrl); // 调试信息
@@ -49,10 +82,12 @@
                 // 使用 marked.parse() 解析 Markdown
                 const htmlContent = marked.parse(text);
                 document.getElementById('content').innerHTML = htmlContent;
+                document.getElementById('loading').style.display = 'none';
             })
             .catch(error => {
                 console.error('Error loading Markdown file:', error);
                 document.getElementById('content').innerHTML = '<p>Failed to load content.</p>';
+                document.getElementById('loading').style.display = 'none';
             });
     } else {
         document.getElementById('content').innerHTML = '<p>No file specified.</p>';

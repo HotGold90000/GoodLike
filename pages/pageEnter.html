@@ -8,59 +8,86 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f0f0f0; /* 护眼背景色 */
+            color: #333; /* 文字颜色 */
         }
-        #file-list {
-            max-width: 600px;
+        #fileList {
+            max-width: 800px;
             margin: 0 auto;
-            list-style: none;
-            padding: 0;
+            padding-left: 20px; /* 内容居左 */
+            list-style-type: none; /* 去掉列表符号 */
         }
-        #file-list li {
+        #fileList li {
             margin: 10px 0;
         }
-        #file-list a {
-            text-decoration: none;
+        a {
             color: #0366d6;
-            font-size: 18px;
+            text-decoration: none;
         }
-        #file-list a:hover {
+        a:hover {
             text-decoration: underline;
+        }
+        #loading {
+            display: none;
+            font-size: 18px;
+            color: #0366d6;
         }
     </style>
 </head>
 <body>
 <h1>Blog Entries</h1>
-<ul id="file-list">Loading...</ul>
+<div id="loading">Loading...</div>
+<ul id="fileList"></ul>
 
 <script>
-    // GitHub API 获取目录列表
-    const repo = 'HotGold90000/GoodLike';
-    // const path = 'pages';
-    const path = 'articles';
-    const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+    // 获取文件列表并缓存
+    function loadFileList() {
+        const cacheKey = 'fileListCache';
+        const cacheExpiry = 5 * 60 * 1000; // 缓存有效期为 5 分钟
 
-    fetch(apiUrl)
-        .then(response => response.json())
-        .then(files => {
-            const fileList = document.getElementById('file-list');
-            fileList.innerHTML = ''; // 清空加载提示
+        // 显示加载动画
+        document.getElementById('loading').style.display = 'block';
 
-            // 过滤并渲染 .md 文件
-            files.forEach(file => {
-                if (file.name.endsWith('.md')) {
-                    const listItem = document.createElement('li');
-                    const link = document.createElement('a');
-                    link.href = `article.html?file=${file.name}`;
-                    link.textContent = file.name.replace('.md', '');
-                    listItem.appendChild(link);
-                    fileList.appendChild(listItem);
-                }
+        // 检查缓存是否存在且未过期
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+            const { timestamp, data } = JSON.parse(cachedData);
+            if (Date.now() - timestamp < cacheExpiry) {
+                renderFileList(data); // 使用缓存数据
+                document.getElementById('loading').style.display = 'none';
+                return;
+            }
+        }
+
+        // 如果缓存不存在或已过期，重新加载文件列表
+        fetch('https://api.github.com/repos/HotGold90000/GoodLike/contents/articles')
+            .then(response => response.json())
+            .then(data => {
+                // 缓存文件列表
+                localStorage.setItem(cacheKey, JSON.stringify({
+                    timestamp: Date.now(),
+                    data: data
+                }));
+                renderFileList(data); // 渲染文件列表
+                document.getElementById('loading').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error loading file list:', error);
+                document.getElementById('loading').style.display = 'none';
             });
-        })
-        .catch(error => {
-            console.error('Error loading file list:', error);
-            document.getElementById('file-list').innerHTML = '<li>Failed to load files.</li>';
-        });
+    }
+
+    // 渲染文件列表
+    function renderFileList(data) {
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = data
+            .filter(file => file.name.endsWith('.md'))
+            .map(file => `<li><a href="article.html?file=${file.name}">${file.name}</a></li>`)
+            .join('');
+    }
+
+    // 页面加载时调用
+    loadFileList();
 </script>
 </body>
 </html>

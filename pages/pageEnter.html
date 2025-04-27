@@ -82,7 +82,11 @@
         const fileList = document.getElementById('fileList');
         fileList.innerHTML = data
             .filter(file => file.name.endsWith('.md'))
-            .map(file => `<li><a href="article.html?file=${file.name}">${file.name}</a></li>`)
+            .map(file => {
+                // 去掉 .md 扩展名
+                const fileName = file.name.replace(/\.md$/, '');
+                return `<li><a href="article.html?file=${file.name}">${fileName}</a></li>`;
+            })
             .join('');
     }
 

@@ -70,7 +70,7 @@
             color: #1a73e8;
         }
         .back-link {
-            position: fixed; /* 固定在底部 */
+            position: fixed; /* fixed bottom of page */
             bottom: 0;
             left: 0;
             width: 100%;
@@ -84,7 +84,7 @@
 <body>
 <div id="loading">Loading...</div>
 <div id="content"></div>
-<p class="back-link"><a href="pageEnter.html">Back to Blog Entries</a></p>
+<p class="back-link"><a href="PageEnter.html">Back to Blog Entries</a></p>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.min.js"></script>
 <script>
@@ -96,9 +96,9 @@
         // 显示加载动画
         document.getElementById('loading').style.display = 'block';
 
-        // 加载并解析 Markdown 文件
-        const fileUrl = `https://raw.githubusercontent.com/HotGold90000/GoodLike/main/articles/${file}`;
-        console.log('Loading file:', fileUrl); // 调试信息
+        // load and parse Markdown file(.md file)
+        const fileUrl = `https://raw.githubusercontent.com/HotGold90000/GoodLike/main/Articles/${file}`;
+        console.log('Loading file:', fileUrl);
 
         fetch(fileUrl)
             .then(response => {

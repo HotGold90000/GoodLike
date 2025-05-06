@@ -69,7 +69,7 @@
         }
 
         // 如果缓存不存在或已过期，重新加载文件列表
-        fetch('https://api.github.com/repos/HotGold90000/GoodLike/contents/articles')
+        fetch('https://api.github.com/repos/HotGold90000/GoodLike/contents/Articles')
             .then(response => response.json())
             .then(data => {
                 // 缓存文件列表
@@ -94,7 +94,7 @@
             .map(file => {
                 // 去掉 .md 扩展名
                 const fileName = file.name.replace(/\.md$/, '');
-                return `<li><a href="article.html?file=${file.name}">${fileName}</a></li>`;
+                return `<li><a href="Article.html?file=${file.name}">${fileName}</a></li>`;
             })
             .join('');
     }

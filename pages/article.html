@@ -12,11 +12,14 @@
             background-color: #ffffff;
             color: #1a1a1a;
             line-height: 1.6;
+            position: relative; /* 添加相对定位 */
+            min-height: 100vh; /* 确保 body 至少占满整个视口高度 */
         }
         #content {
             max-width: 800px;
             margin: 0 auto;
             padding: 0 5px;
+            padding-bottom: 60px; /* 为底部链接留出空间 */
         }
         h1 {
             font-size: 28px;
@@ -66,12 +69,22 @@
             font-size: 16px;
             color: #1a73e8;
         }
+        .back-link {
+            position: fixed; /* 固定在底部 */
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+        }
     </style>
 </head>
 <body>
 <div id="loading">Loading...</div>
 <div id="content"></div>
-<p><a href="pageEnter.html">Back to Blog Entries</a></p>
+<p class="back-link"><a href="pageEnter.html">Back to Blog Entries</a></p>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.min.js"></script>
 <script>

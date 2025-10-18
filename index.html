@@ -79,10 +79,23 @@
             color: #555;
             text-align: left;
         }
+        /*.grid-item .remark {*/
+        /*    font-size: 12px;*/
+        /*    color: #888;*/
+        /*    margin-top: 10px;*/
+        /*}*/
         .grid-item .remark {
             font-size: 12px;
             color: #888;
             margin-top: 10px;
+            /* 文本溢出处理 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            /* 宽度控制 */
+            width: 100%;                   /* 占满父容器宽度 */
+            max-width: 180px;              /* 最大宽度限制 */
+            display: block;                /* 确保宽度生效 */
         }
         .search-bar {
             position: relative;
@@ -122,6 +135,10 @@
             grid-template-columns: repeat(4, 1fr);
         }
     </style>
+
+    <!-- 引入配置文件 -->
+    <script src="/datas/config.js"></script>
+
 </head>
 <body>
 
@@ -155,22 +172,19 @@
             const gridItem = document.createElement('div');
             gridItem.className = 'grid-item';
             gridItem.innerHTML = `
-                <a href="${item.url}" target="_blank">
-                    <img src="${item.img}" alt="${item.name}">
-                    <div class="content">
-                        <p>${item.name}</p>
-                        <p class="remark">${item.remark}</p>
-                    </div>
-                </a>
-            `;
+                    <a href="${item.url}" target="_blank">
+                        <img src="${item.img}" alt="${item.name}">
+                        <div class="content">
+                            <p>${item.name}</p>
+                            <p class="remark">${item.remark}</p>
+                        </div>
+                    </a>
+                `;
             container.appendChild(gridItem);
         });
     }
 
-    function openInNewWindow(url) {
-        window.open(url, '_blank', 'toolbar=yes,scrollbars=yes,resizable=yes,top=50,left=50,width=800,height=600');
-    }
-
+    // 其他函数保持不变...
     document.addEventListener('DOMContentLoaded', function() {
         const sectionsContainer = document.getElementById('sectionsContainer');
         config.sections.forEach(section => {
@@ -197,133 +211,15 @@
     modeToggle.addEventListener('click', function() {
         document.body.classList.toggle('fixed-width');
         if (document.body.classList.contains('fixed-width')) {
-            modeToggle.textContent = 'To Adaptive Mode'; //切换为自适应模式
+            modeToggle.textContent = 'To Adaptive Mode';
         } else {
-            modeToggle.textContent = 'To Fixed Mode'; //切换为固定宽度模式
+            modeToggle.textContent = 'To Fixed Mode';
         }
     });
 
     document.body.classList.add('fixed-width');
-    modeToggle.textContent = 'To Adaptive Mode'; // 默认设置为固定宽度模式
+    modeToggle.textContent = 'To Adaptive Mode';
 
-
-    //配置文件
-    //config.json不能独立出文件，原因是浏览器的安全机制主要是为了防止跨站脚本攻击（XSS）和其他安全问题，限制了从本地文件系统直接读取文件的操作
-    //这不仅限于 .json 文件，实际上任何类型的文件（如 .txt, .xml, .csv 等）都受到相同的限制
-    const config = {
-        "sections": [
-            {
-                "title": "Robots",
-                "id": "gridContainer1",
-                "items": [
-                    {
-                        "name": "Chatgpt",
-                        "url": "https://chatgpt.com/?openaicom_referred=true",
-                        "img": "https://img.icons8.com/?size=100&id=FBO05Dys9QCg&format=png&color=000000",
-                        "remark": "Chatgpt"
-                    },
-                    {
-                        "name": "DeepSeek",
-                        "url": "https://chat.deepseek.com/",
-                        "img": "https://img.icons8.com/?size=100&id=YWOidjGxCpFW&format=png&color=000000",
-                        "remark": "The analysis of view info is more detailed"
-                    },
-                    {
-                        "name": "Gemini",
-                        "url": "https://gemini.google.com/",
-                        "img": "https://assets-global.website-files.com/614c82ed388d53640613982e/65731925337413d7614c64bd_google-gemini.webp",
-                        "remark": "Gemini's deepresearch is amazing"
-                    },
-
-                ]
-            },
-            {
-                "title": "Docs",
-                "id": "gridContainer2",
-                "items": [
-                    {
-                        "name": "Docs Home",
-                        "url": "https://k40lgae11i.feishu.cn/drive/home/",
-                        "img": "https://p1-hera.feishucdn.com/tos-cn-i-jbbdkfciu3/84a9f036fe2b44f99b899fff4beeb963~tplv-jbbdkfciu3-image:0:0.image",
-                        "remark": "Feishu Lark doc's home page"
-                    }
-
-                ]
-            },
-            {
-                "title": "Tools-Work",
-                "id": "gridContainer3",
-                "items": [
-                    {
-                        "name": "QA Tool",
-                        "url": "http://qa.yclassroom.com/dashboard/Index",
-                        "img": "https://www.svgrepo.com/show/526910/checklist-minimalistic.svg",
-                        "remark": "CloudClass QA Tools"
-                    }
-                ]
-            },
-            {
-                "title": "Readings",
-                "id": "gridContainer4",
-                "items": [
-                    {
-                        "name": "Reddit",
-                        "url": "https://www.reddit.com/",
-                        "img": "https://static-00.iconduck.com/assets.00/reddit-icon-1024x1024-6c2aoary.png",
-                        "remark": "Info community"
-                    },
-                    {
-                        "name": "Tophub",
-                        "url": "https://tophub.today/",
-                        "img": "https://file.ipadown.com/tophub/assets/images/logo.png",
-                        "remark": "Aggregated news and articles."
-                    },
-                    {
-                        "name": "Wikipedia",
-                        "url": "https://www.wikipedia.org/",
-                        "img": "https://zh.wikipedia.org/static/images/icons/wikipedia.png",
-                        "remark": "Not accessible on our LAN, require scientific internet"
-                    },
-                    {
-                        "name": "Quora",
-                        "url": "https://www.quora.com/",
-                        "img": "https://ts4.tc.mm.bing.net/th/id/OSAAS.777FC27383CA52BA3DF3AB04CAB4F66B?w=72&h=72&c=1&rs=1&o=6&pid=TechQna",
-                        "remark": "Info community"
-                    }
-                ]
-            },
-
-            {
-                "title": "Tools-Pic",
-                "id": "gridContainer5",
-                "items": [
-                    {
-                        "name": "SvgRepo",
-                        "url": "https://www.svgrepo.com/",
-                        "img": "https://www.svgrepo.com/logo.svg",
-                        "remark": "support svg ICON download and link copy, it s free"
-                    },
-                    ,{
-                        "name": "Icons8",
-                        "url": "https://icons8.com/icons",
-                        "img": "https://goodies.icons8.com/web/common/header/logo/logo-icons8.svg",
-                        "remark": "support ICON download and link copy"
-                    },{
-                        "name": "Colab",
-                        "url": "https://colab.research.google.com/#scrollTo=Wf5KrEb6vrkR",
-                        "img": "https://azhar.blog.uma.ac.id/wp-content/uploads/2023/05/google-colaboratory6512.jpg",
-                        "remark": "build chart pic by python codes"
-                    },
-                    {
-                        "name": "Picsman",
-                        "url": "https://www.picsman.ai/zh-cn/create?type=tool",
-                        "img": "https://www.picsman.ai/images/b_tools_active.svg",
-                        "remark": "Image tool: support automatic removal of image clutter text, etc"
-                    }
-                ]
-            }
-        ]
-    };
 </script>
 </body>
 </html>

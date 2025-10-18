@@ -137,7 +137,14 @@
     </style>
 
     <!-- 引入配置文件 -->
-    <script src="/datas/config.js"></script>
+    <script src="./datas/config.js"></script>
+    <script>
+        // 检查config是否加载成功
+        if (typeof config === 'undefined') {
+            console.error('config.js 加载失败，请检查文件路径');
+            // 可以在这里提供备用方案
+        }
+    </script>
 
 </head>
 <body>

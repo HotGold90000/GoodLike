@@ -55,7 +55,7 @@ const config = {
                 {
                     "name": "Reddit",
                     "url": "https://www.reddit.com/",
-                    "img": "https://static-00.iconduck.com/assets.00/reddit-icon-1024x1024-6c2aoary.png",
+                    "img": "https://www.svgrepo.com/show/349489/reddit.svg",
                     "remark": "Info community"
                 },
                 {

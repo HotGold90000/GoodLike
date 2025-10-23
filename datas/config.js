@@ -34,10 +34,16 @@ const config = {
             "id": "gridContainer2",
             "items": [
                 {
-                    "name": "Line Chart",
-                    "url": "/pages/LineChart.html",
-                    "img": "https://www.svgrepo.com/show/373848/chart-line.svg",
-                    "remark": "自定义折线图工具"
+                    "name": "OA-XDF",
+                    "url": "https://oa.xdf.cn/",
+                    "img": "https://oa.xdf.cn/oanew/img/d-bg-p.11c8c886.png",
+                    "remark": "XDF Portal"
+                },
+                {
+                    "name": "Office Map",
+                    "url": "../pages/PictureDisplay.html",
+                    "img": "https://www.svgrepo.com/show/500639/office-building.svg",
+                    "remark": "Office Map"
                 },
             ]
         },

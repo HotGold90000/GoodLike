@@ -41,7 +41,7 @@ const config = {
                 },
                 {
                     "name": "Office Map",
-                    "url": "../pages/PictureDisplay.html",
+                    "url": "https://hotgold90000.github.io/GoodLike/src/haixing_offices_rooms.png",
                     "img": "https://www.svgrepo.com/show/500639/office-building.svg",
                     "remark": "Office Map"
                 },

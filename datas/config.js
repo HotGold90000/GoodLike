@@ -26,6 +26,12 @@ const config = {
                     "url": "https://gemini.google.com/",
                     "img": "https://assets-global.website-files.com/614c82ed388d53640613982e/65731925337413d7614c64bd_google-gemini.webp",
                     "remark": "Gemini's deepresearch is amazing"
+                },
+                {
+                    "name": "Copilot",
+                    "url": "https://copilot.microsoft.com/",
+                    "img": "https://www.microsoft.com/en-us/microsoft-copilot/blog/wp-content/uploads/2024/09/Blog-Hero-CopilotWordmark-3840x2160-1.png",
+                    "remark": "Copilot可以免费使用GPT5"
                 }
             ]
         },

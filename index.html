@@ -151,7 +151,7 @@
 </head>
 <body>
 
-<button class="mode-toggle" id="modeToggle">切换模式</button>
+<!--<button class="mode-toggle" id="modeToggle">切换模式</button>-->
 
 <div class="search-bar">
     <input type="text" id="searchInput" placeholder="Find Webs...">
@@ -216,18 +216,18 @@
         });
     });
 
-    const modeToggle = document.getElementById('modeToggle');
-    modeToggle.addEventListener('click', function() {
-        document.body.classList.toggle('fixed-width');
-        if (document.body.classList.contains('fixed-width')) {
-            modeToggle.textContent = 'To Adaptive Mode';
-        } else {
-            modeToggle.textContent = 'To Fixed Mode';
-        }
-    });
-
-    document.body.classList.add('fixed-width');
-    modeToggle.textContent = 'To Adaptive Mode';
+    // const modeToggle = document.getElementById('modeToggle');
+    // modeToggle.addEventListener('click', function() {
+    //     document.body.classList.toggle('fixed-width');
+    //     if (document.body.classList.contains('fixed-width')) {
+    //         modeToggle.textContent = 'To Adaptive Mode';
+    //     } else {
+    //         modeToggle.textContent = 'To Fixed Mode';
+    //     }
+    // });
+    //
+    // document.body.classList.add('fixed-width');
+    // modeToggle.textContent = 'To Adaptive Mode';
 
 </script>
 </body>

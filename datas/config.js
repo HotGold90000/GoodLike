@@ -1,5 +1,3 @@
-// config.js - 网站导航配置
-//配置文件
 //config.json不能独立出文件，原因是浏览器的安全机制主要是为了防止跨站脚本攻击（XSS）和其他安全问题，限制了从本地文件系统直接读取文件的操作
 //这不仅限于 .json 文件，实际上任何类型的文件（如 .txt, .xml, .csv 等）都受到相同的限制
 // const config = {
@@ -31,7 +29,7 @@ const config = {
                     "name": "Copilot",
                     "url": "https://copilot.microsoft.com/",
                     "img": "https://www.microsoft.com/en-us/microsoft-copilot/blog/wp-content/uploads/2024/09/Blog-Hero-CopilotWordmark-3840x2160-1.png",
-                    "remark": "Copilot可以免费使用GPT5"
+                    "remark": "use GPT5 freely"
                 }
             ]
         },
@@ -68,13 +66,13 @@ const config = {
                     "name": "Tophub",
                     "url": "https://tophub.today/",
                     "img": "https://file.ipadown.com/tophub/assets/images/logo.png",
-                    "remark": "Aggregated news and articles."
+                    "remark": "News and article"
                 },
                 {
                     "name": "Wikipedia",
                     "url": "https://www.wikipedia.org/",
                     "img": "https://zh.wikipedia.org/static/images/icons/wikipedia.png",
-                    "remark": "Not accessible on our LAN, require scientific internet"
+                    "remark": "Req scient net"
                 },
                 {
                     "name": "Quora",
@@ -89,28 +87,33 @@ const config = {
             "id": "gridContainer5",
             "items": [
                 {
+                    "name": "Emojipedia",
+                    "url": "https://emojipedia.org/",
+                    "img": "https://em-content.zobj.net/mashup/twitter/twemoji-14.0/base/cowboy.png",
+                    "remark": "Emojis Directory"
+                },{
                     "name": "SvgRepo",
                     "url": "https://www.svgrepo.com/",
                     "img": "https://www.svgrepo.com/logo.svg",
-                    "remark": "support svg ICON download and link copy, it s free"
+                    "remark": "Svg icon download & link copy"
                 },
                 {
                     "name": "Icons8",
                     "url": "https://icons8.com/icons",
                     "img": "https://goodies.icons8.com/web/common/header/logo/logo-icons8.svg",
-                    "remark": "support ICON download and link copy"
+                    "remark": "Icon download & link copy"
                 },
                 {
                     "name": "Colab",
                     "url": "https://colab.research.google.com/#scrollTo=Wf5KrEb6vrkR",
                     "img": "https://azhar.blog.uma.ac.id/wp-content/uploads/2023/05/google-colaboratory6512.jpg",
-                    "remark": "build chart pic by python codes"
+                    "remark": "Chart pic by python codes"
                 },
                 {
                     "name": "Picsman",
                     "url": "https://www.picsman.ai/zh-cn/create?type=tool",
                     "img": "https://www.picsman.ai/images/b_tools_active.svg",
-                    "remark": "Image tool: support automatic removal of image clutter text, etc"
+                    "remark": "Automatic removal of image clutter text"
                 }
             ]
         }

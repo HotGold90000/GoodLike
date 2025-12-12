@@ -30,6 +30,12 @@ const config = {
                     "url": "https://copilot.microsoft.com/",
                     "img": "https://www.microsoft.com/en-us/microsoft-copilot/blog/wp-content/uploads/2024/09/Blog-Hero-CopilotWordmark-3840x2160-1.png",
                     "remark": "use GPT5 freely"
+                },
+                {
+                    "name": "Ai-Studio",
+                    "url": "https://aistudio.google.com/",
+                    "img": "https://static.vecteezy.com/system/resources/previews/046/861/646/original/gemini-icon-on-a-transparent-background-free-png.png",
+                    "remark": "use Gemini Preview freely"
                 }
             ]
         },

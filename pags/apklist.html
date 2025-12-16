@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rb APK</title>
+    <style>
+        body {
+            font-family: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f7faf6;
+            color: #333;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            background: #ffffff;
+            border-bottom: 1px solid #dce5de;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .toolbar h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #2e7d32;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toolbar h1::before { content: "📦"; }
+
+        .view-btn {
+            padding: 6px 12px;
+            border: 1px solid #cdd8d3;
+            border-radius: 6px;
+            background: #e8f5e9;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 8px;
+            transition: all 0.2s ease;
+        }
+        .view-btn:hover {
+            background: #dcedc8;
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 24px auto;
+            padding: 20px 28px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #dce5de;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* 列表模式 */
+        #file-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #file-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border: 1px solid #e0e5e0;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background: #f9fdfb;
+            transition: all 0.2s ease;
+        }
+        #file-list li:hover {
+            background: #e8f5e9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        #file-list a {
+            color: #1565c0;
+            text-decoration: none;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .apk-icon {
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(145deg, #4caf50, #43a047);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* 日历模式 */
+        .calendar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .day-cell {
+            background: #f5faf5;
+            border: 1px solid #dce5de;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .day-cell.today {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        .day-cell h3 {
+            font-size: 15px;
+            margin: 0;
+            color: #2e7d32;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #dce5de;
+        }
+        .day-cell a {
+            font-size: 13px;
+            padding: 4px 0;
+            display: block;
+        }
+
+        /* 文件分组 */
+        .file-group {
+            margin-top: 24px;
+        }
+        .file-group h2 {
+            font-size: 18px;
+            color: #2e7d32;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #e8f5e9;
+        }
+
+        .recent-files {
+            background: #f9fdf9;
+            border-left: 3px solid #4caf50;
+            padding-left: 12px;
+        }
+
+        .older-files {
+            background: #f5f5f5;
+            border-left: 3px solid #757575;
+            padding-left: 12px;
+        }
+
+        .oldest-files {
+            background: #f0f0f0;
+            border-left: 3px solid #9e9e9e;
+            padding-left: 12px;
+        }
+
+        .file-group a {
+            display: block;
+            padding: 6px 0;
+            color: #1565c0;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .file-group a:hover {
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #757575;
+            font-style: italic;
+        }
+
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #2e7d32;
+        }
+
+        .error {
+            text-align: center;
+            padding: 20px;
+            color: #b71c1c;
+            background: #ffebee;
+            border-radius: 6px;
+        }
+
+        /* 按天分组样式 */
+        .day-group {
+            margin-bottom: 12px;
+        }
+
+        .day-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 8px 0;
+        }
+
+        .day-group:last-child .day-divider {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="toolbar">
+    <h1>Roombox apk</h1>
+    <div>
+        <button class="view-btn" id="toggleView">切换列表视图</button>
+    </div>
+</div>
+
+<div class="container">
+    <div id="file-list">
+        <div class="loading">正在加载文件列表...</div>
+    </div>
+</div>
+
+<script>
+    const BASE_PATH = "/apps/Android/RoomBox/Debug/";
+    const FILE_LIST_URL = "http://10.203.12.99" + BASE_PATH;
+    let isCalendarView = true; // 默认设置为日历视图
+    let linksData = [];
+
+    const toggleBtn = document.getElementById("toggleView");
+    const fileListDiv = document.getElementById("file-list");
+
+    toggleBtn.addEventListener("click", () => {
+        isCalendarView = !isCalendarView;
+        // 更新按钮文案
+        toggleBtn.textContent = isCalendarView ? "切换列表视图" : "切换日历视图";
+        renderView();
+    });
+
+    // 格式化日期为两位数
+    function formatDateNumber(num) {
+        return num < 10 ? '0' + num : num.toString();
+    }
+
+    function parseDateFromAPK(name) {
+        const match = name.match(/\((\d{10})\)/);
+        if (!match) return null;
+        const dateStr = match[1].substring(0,8);
+        const year = parseInt(dateStr.substring(0,4));
+        const month = parseInt(dateStr.substring(4,6)) - 1;
+        const day = parseInt(dateStr.substring(6,8));
+        return new Date(year, month, day);
+    }
+
+    function groupFilesByDate(files) {
+        const today = new Date();
+        const oneWeekAgo = new Date(today);
+        oneWeekAgo.setDate(today.getDate() - 7);
+
+        const fourWeeksAgo = new Date(today);
+        fourWeeksAgo.setDate(today.getDate() - 28);
+
+        const recentFiles = []; // 最近一周
+        const olderFiles = [];  // 1-4周前
+        const oldestFiles = []; // 更早的文件
+        const noDateFiles = []; // 无法解析日期的文件
+
+        files.forEach(name => {
+            const date = parseDateFromAPK(name);
+            if (!date) {
+                noDateFiles.push(name);
+                return;
+            }
+
+            if (date >= oneWeekAgo) {
+                recentFiles.push({name, date});
+            } else if (date >= fourWeeksAgo) {
+                olderFiles.push({name, date});
+            } else {
+                oldestFiles.push({name, date});
+            }
+        });
+
+        // 按日期排序 - 最近的文件在前
+        recentFiles.sort((a, b) => b.date - a.date);
+        olderFiles.sort((a, b) => b.date - a.date);
+        oldestFiles.sort((a, b) => b.date - a.date);
+
+        return { recentFiles, olderFiles, oldestFiles, noDateFiles };
+    }
+
+    // 按天分组文件
+    function groupFilesByDay(files) {
+        const groups = {};
+        files.forEach(file => {
+            const dateKey = file.date.toDateString();
+            if (!groups[dateKey]) {
+                groups[dateKey] = [];
+            }
+            groups[dateKey].push(file);
+        });
+
+        // 转换为数组并排序
+        return Object.keys(groups)
+            .map(dateKey => ({
+                date: new Date(dateKey),
+                files: groups[dateKey]
+            }))
+            .sort((a, b) => b.date - a.date);
+    }
+
+    function renderView() {
+        fileListDiv.innerHTML = "";
+
+        if (linksData.length === 0) {
+            fileListDiv.innerHTML = "<div class='loading'>正在加载文件列表...</div>";
+            return;
+        }
+
+        if (!isCalendarView) {
+            // 列表模式
+            const ul = document.createElement("ul");
+            linksData.forEach(name => {
+                const li = document.createElement("li");
+                const icon = document.createElement("div");
+                icon.className = "apk-icon";
+                icon.textContent = "APK";
+                const a = document.createElement("a");
+                a.href = FILE_LIST_URL + name;
+                a.textContent = name;
+                li.appendChild(icon);
+                li.appendChild(a);
+                ul.appendChild(li);
+            });
+            fileListDiv.appendChild(ul);
+        } else {
+            // 日历模式 - 纵向排列
+            const { recentFiles, olderFiles, oldestFiles, noDateFiles } = groupFilesByDate(linksData);
+
+            // 最近一周的文件 - 用日历视图展示
+            if (recentFiles.length > 0) {
+                const recentGroup = document.createElement("div");
+                recentGroup.className = "file-group recent-files";
+
+                const title = document.createElement("h2");
+                // title.textContent = "最近一周的 APK 文件";
+                title.textContent = "Recent Week";
+                recentGroup.appendChild(title);
+
+                const calendarDiv = document.createElement("div");
+                calendarDiv.className = "calendar";
+
+                const today = new Date();
+                const weekDates = [];
+                // 最近日期在前，由近及远
+                for(let i=0; i<7; i++){
+                    const d = new Date(today);
+                    d.setDate(today.getDate()-i);
+                    weekDates.push(d);
+                }
+
+                weekDates.forEach(date => {
+                    const dayCell = document.createElement("div");
+                    dayCell.className = "day-cell";
+                    if(date.toDateString() === today.toDateString()) dayCell.classList.add("today");
+
+                    const dayTitle = document.createElement("h3");
+                    const dayNames = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+                    dayTitle.textContent = `${formatDateNumber(date.getMonth()+1)}/${formatDateNumber(date.getDate())} ${dayNames[date.getDay()]}`;
+                    dayCell.appendChild(dayTitle);
+
+                    let hasFile = false;
+                    recentFiles.forEach(file => {
+                        if(file.date.toDateString() === date.toDateString()){
+                            const a = document.createElement("a");
+                            a.href = FILE_LIST_URL + file.name;
+                            a.textContent = file.name;
+                            dayCell.appendChild(a);
+                            hasFile = true;
+                        }
+                    });
+
+                    if (!hasFile) {
+                        const emptyMsg = document.createElement("div");
+                        emptyMsg.className = "empty-state";
+                        emptyMsg.textContent = "无 APK 文件";
+                        dayCell.appendChild(emptyMsg);
+                    }
+
+                    calendarDiv.appendChild(dayCell);
+                });
+
+                recentGroup.appendChild(calendarDiv);
+                fileListDiv.appendChild(recentGroup);
+            }
+
+            // 1-4周前的文件 - 按天分组
+            if (olderFiles.length > 0) {
+                const olderGroup = document.createElement("div");
+                olderGroup.className = "file-group older-files";
+
+                const title = document.createElement("h2");
+                // title.textContent = "近期 APK 文件 (1-4周前)";
+                title.textContent = "Recent (1-4 weeks)";
+                olderGroup.appendChild(title);
+
+                const dayGroups = groupFilesByDay(olderFiles);
+
+                dayGroups.forEach(dayGroup => {
+                    const dayContainer = document.createElement("div");
+                    dayContainer.className = "day-group";
+
+                    dayGroup.files.forEach(file => {
+                        const a = document.createElement("a");
+                        a.href = FILE_LIST_URL + file.name;
+                        a.textContent = `${formatDateNumber(file.date.getMonth()+1)}/${formatDateNumber(file.date.getDate())} - ${file.name}`;
+                        dayContainer.appendChild(a);
+                    });
+
+                    // 添加分割线
+                    const divider = document.createElement("div");
+                    divider.className = "day-divider";
+                    dayContainer.appendChild(divider);
+
+                    olderGroup.appendChild(dayContainer);
+                });
+
+                fileListDiv.appendChild(olderGroup);
+            }
+
+            // 更早的文件 - 按天分组
+            if (oldestFiles.length > 0) {
+                const oldestGroup = document.createElement("div");
+                oldestGroup.className = "file-group oldest-files";
+
+                const title = document.createElement("h2");
+                // title.textContent = "更早的 APK 文件";
+                title.textContent = "Archive";
+                oldestGroup.appendChild(title);
+
+                const dayGroups = groupFilesByDay(oldestFiles);
+
+                dayGroups.forEach(dayGroup => {
+                    const dayContainer = document.createElement("div");
+                    dayContainer.className = "day-group";
+
+                    dayGroup.files.forEach(file => {
+                        const a = document.createElement("a");
+                        a.href = FILE_LIST_URL + file.name;
+                        a.textContent = `${file.date.getFullYear()}/${formatDateNumber(file.date.getMonth()+1)}/${formatDateNumber(file.date.getDate())} - ${file.name}`;
+                        dayContainer.appendChild(a);
+                    });
+
+                    // 添加分割线
+                    const divider = document.createElement("div");
+                    divider.className = "day-divider";
+                    dayContainer.appendChild(divider);
+
+                    oldestGroup.appendChild(dayContainer);
+                });
+
+                fileListDiv.appendChild(oldestGroup);
+            }
+
+            // 无法解析日期的文件
+            if (noDateFiles.length > 0) {
+                const noDateGroup = document.createElement("div");
+                noDateGroup.className = "file-group";
+
+                const title = document.createElement("h2");
+                // title.textContent = "其他 APK 文件 (无法解析日期)";
+                title.textContent = "Others (No date)";
+                noDateGroup.appendChild(title);
+
+                noDateFiles.forEach(name => {
+                    const a = document.createElement("a");
+                    a.href = FILE_LIST_URL + name;
+                    a.textContent = name;
+                    noDateGroup.appendChild(a);
+                });
+
+                fileListDiv.appendChild(noDateGroup);
+            }
+        }
+    }
+
+    // === 获取文件列表 ===
+    fetch(FILE_LIST_URL)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.text();
+        })
+        .then(data => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, "text/html");
+            linksData = Array.from(doc.querySelectorAll("a"))
+                .map(a => a.textContent)
+                .filter(n => n.endsWith(".apk"));
+            renderView();
+        })
+        .catch(err => {
+            fileListDiv.innerHTML = `<div class="error">无法加载文件列表，请检查网络或服务器。<br>错误信息: ${err.message}</div>`;
+            console.error(err);
+        });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Navigation</title>
+    <link rel="icon"
+          href="https://cdn-static.sspai.com/ui/otter_avatar_placeholder_240511.png?imageMogr2/auto-orient/thumbnail/!200x200r/gravity/center/crop/200x200/format/webp/ignore-error/1"
+          type="image/png"> <!-- icon of Web browser bookmark-->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            /*padding: 50px;*/
+            padding-left: 100px;
+            padding-top: 50px;
+            background-color: #f0f0f0;
+            background: #f0f0f0 url('../../src/worldmap.svg') center/cover fixed no-repeat;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.05); /* 黑色半透明遮罩 , 可以在保持背景图片可见的同时，提高前景内容的可读性 */
+            z-index: -1;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 10px;
+        }
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .grid-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .grid-item a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #555;
+            width: 100%;
+        }
+        .grid-item img {
+            width: 50px;
+            height: 50px;
+            margin-right: 20px;
+            transition: transform 0.3s;
+        }
+        /*.grid-item img:hover {*/
+        /*    transform: rotate(360deg);*/
+        /*}*/
+        .grid-item .content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .grid-item p {
+            margin: 0;
+            color: #555;
+            text-align: left;
+        }
+        /*.grid-item .remark {*/
+        /*    font-size: 12px;*/
+        /*    color: #888;*/
+        /*    margin-top: 10px;*/
+        /*}*/
+        .grid-item .remark {
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+            /* 文本溢出处理 */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            /* 宽度控制 */
+            width: 100%;                   /* 占满父容器宽度 */
+            max-width: 180px;              /* 最大宽度限制 */
+            display: block;                /* 确保宽度生效 */
+        }
+        .search-bar {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 10px 40px 10px 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .search-bar .search-icon {
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+        .mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .fixed-width .grid-container {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    </style>
+
+    <!-- 引入配置文件 -->
+    <script src="../datas/commonConfig.js"></script>
+    <script>
+        // 检查config是否加载成功
+        if (typeof commonConfig === 'undefined') {
+            console.error('config.js 加载失败，请检查文件路径');
+            // 可以在这里提供备用方案
+        }
+    </script>
+
+</head>
+<body>
+
+<!--<button class="mode-toggle" id="modeToggle">切换模式</button>-->
+
+<div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Find Webs...">
+    <img src="https://img.icons8.com/ios-filled/50/000000/search.png" class="search-icon" alt="Search Icon">
+</div>
+
+<div id="sectionsContainer"></div>
+
+<script>
+    function createSection(section) {
+        const sectionContainer = document.createElement('div');
+        const sectionTitle = document.createElement('h2');
+        sectionTitle.textContent = section.title;
+        sectionContainer.appendChild(sectionTitle);
+
+        const gridContainer = document.createElement('div');
+        gridContainer.className = 'grid-container';
+        gridContainer.id = section.id;
+        sectionContainer.appendChild(gridContainer);
+        loadGrid(gridContainer, section.items);
+        return sectionContainer;
+    }
+
+    function loadGrid(container, items) {
+        container.innerHTML = '';
+        items.forEach(item => {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.innerHTML = `
+                    <a href="${item.url}" target="_blank">
+                        <img src="${item.img}" alt="${item.name}">
+                        <div class="content">
+                            <p>${item.name}</p>
+                            <p class="remark">${item.remark}</p>
+                        </div>
+                    </a>
+                `;
+            container.appendChild(gridItem);
+        });
+    }
+
+    // 其他函数保持不变...
+    document.addEventListener('DOMContentLoaded', function() {
+        const sectionsContainer = document.getElementById('sectionsContainer');
+        commonConfig.sections.forEach(section => {
+            const sectionElement = createSection(section);
+            sectionsContainer.appendChild(sectionElement);
+        });
+    });
+
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function() {
+        const filter = searchInput.value.toLowerCase();
+        commonConfig.sections.forEach(section => {
+            const gridContainer = document.getElementById(section.id);
+            const gridItems = gridContainer.getElementsByClassName('grid-item');
+            for (let i = 0; i < gridItems.length; i++) {
+                const item = gridItems[i];
+                const text = item.textContent || item.innerText;
+                item.style.display = text.toLowerCase().includes(filter) ? '' : 'none';
+            }
+        });
+    });
+
+    // const modeToggle = document.getElementById('modeToggle');
+    // modeToggle.addEventListener('click', function() {
+    //     document.body.classList.toggle('fixed-width');
+    //     if (document.body.classList.contains('fixed-width')) {
+    //         modeToggle.textContent = 'To Adaptive Mode';
+    //     } else {
+    //         modeToggle.textContent = 'To Fixed Mode';
+    //     }
+    // });
+    //
+    // document.body.classList.add('fixed-width');
+    // modeToggle.textContent = 'To Adaptive Mode';
+
+</script>
+</body>
+</html>

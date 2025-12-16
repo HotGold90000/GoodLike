@@ -6,466 +6,171 @@
     <title>Roombox Space</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- <link rel="icon" href="../src/web_avator.jpg" type="image/png"> -->
     <style>
-        /* ---------------- 原有样式区域 (完全保持不变) ---------------- */
-
-        /* 每个item左侧的自定义icon样式 */
+        /* ---------------- 原有样式区域 ---------------- */
         .custom-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 8px;
-            vertical-align: middle;
-            object-fit: contain;
-            filter: brightness(0.8);
-            transition: all 0.2s ease;
+            width: 24px; height: 24px; margin-right: 8px; vertical-align: middle;
+            object-fit: contain; filter: brightness(0.8); transition: all 0.2s ease;
         }
-        .link-item a:hover .custom-icon {
-            filter: brightness(1);
-            transform: scale(1.1);
-        }
-
+        .link-item a:hover .custom-icon { filter: brightness(1); transform: scale(1.1); }
         :root {
-            --primary: #6c5ce7;
-            --secondary: #a29bfe;
-            --dark: #2d3436;
-            --light: #f5f6fa;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --glass-effect: rgba(255, 255, 255, 0.2);
-            --sidebar-width: 80px;
-            --sidebar-bg: rgba(235, 240, 255, 0.95);
+            --primary: #6c5ce7; --secondary: #a29bfe; --dark: #2d3436; --light: #f5f6fa;
+            --card-bg: rgba(255, 255, 255, 0.9); --glass-effect: rgba(255, 255, 255, 0.2);
+            --sidebar-width: 80px; --sidebar-bg: rgba(235, 240, 255, 0.95);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Noto Sans SC', sans-serif;
-            min-height: 100vh;
+            font-family: 'Noto Sans SC', sans-serif; min-height: 100vh;
             padding-left: calc(var(--sidebar-width) + 20px);
-            /* 注意：这里保留你的背景设置，如果图片路径不对请自行调整 */
-            background: #f0f0f0 url('../src/worldmap.svg') center/cover fixed no-repeat;
+            /* 注意：如果 index.html 移到了根目录，这里图片的路径应该是 src/worldmap.svg */
+            background: #f0f0f0 url('src/worldmap.svg') center/cover fixed no-repeat;
         }
-
         body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.05);
-            z-index: -1;
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.05); z-index: -1;
         }
-
-        /* 侧边栏样式 */
         .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: var(--sidebar-bg);
-            backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
-            z-index: 100;
-            transition: all 0.3s ease;
-            overflow: hidden;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh;
+            background: var(--sidebar-bg); backdrop-filter: blur(10px); display: flex;
+            flex-direction: column; align-items: center; padding: 20px 0; z-index: 100;
+            transition: all 0.3s ease; overflow: hidden; box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         }
-
         .sidebar-item {
-            width: 100%;
-            padding: 15px 20px;
-            color: #555;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 10px;
-            border-radius: 0 8px 8px 0;
-            text-decoration: none;
+            width: 100%; padding: 15px 20px; color: #555; display: flex; align-items: center;
+            cursor: pointer; transition: all 0.2s ease; margin-bottom: 10px;
+            border-radius: 0 8px 8px 0; text-decoration: none;
         }
-
-        .sidebar-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-item.active {
-            background: var(--secondary);
-            color: white;
-        }
-
-        .sidebar-item i {
-            font-size: 1.5rem;
-            margin-right: 15px;
-            min-width: 30px;
-            text-align: center;
-        }
-
-        .sidebar-item span {
-            display: none;
-            white-space: nowrap;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-        }
-
-        /* 图片查看器样式 */
+        .sidebar-item:hover { background: rgba(255, 255, 255, 0.1); }
+        .sidebar-item.active { background: var(--secondary); color: white; }
+        .sidebar-item i { font-size: 1.5rem; margin-right: 15px; min-width: 30px; text-align: center; }
+        .sidebar-item span { display: none; white-space: nowrap; opacity: 1; transition: opacity 0.3s ease; }
         .image-viewer {
-            position: fixed;
-            top: 0;
-            left: var(--sidebar-width);
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 90;
-            padding: 20px;
-            transition: left 0.3s ease;
+            position: fixed; top: 0; left: var(--sidebar-width); right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0); display: none; justify-content: center;
+            align-items: center; z-index: 90; padding: 20px; transition: left 0.3s ease;
         }
-
-        .image-viewer img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
+        .image-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; }
         .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 2rem;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.2);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: absolute; top: 20px; right: 20px; color: white; font-size: 2rem;
+            cursor: pointer; background: rgba(255, 255, 255, 0.2); width: 40px; height: 40px;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
             transition: all 0.2s ease;
         }
-
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-
-        /* 容器样式 */
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 50px;
-            transition: opacity 0.3s ease;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white; /* 这里原代码是white，如果背景太浅可能看不清，保持原样 */
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-            color: #333; /* 稍微加深颜色以防背景过亮 */
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            color: #555;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-        }
-
+        .close-btn:hover { background: rgba(255, 255, 255, 0.3); transform: rotate(90deg); }
+        .container { max-width: 100%; margin: 0 auto; padding: 50px; transition: opacity 0.3s ease; }
+        header { text-align: center; margin-bottom: 40px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; font-weight: 700; color: #333; }
+        .subtitle { font-size: 1.2rem; opacity: 0.9; color: #555; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
         .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-effect);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .card-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: white;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease;
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 500;
-        }
-
-        .link-list {
-            list-style: none;
-        }
-
-        .link-item {
-            margin-bottom: 12px;
-            position: relative;
-            padding-left: 0px;
-        }
-
-        .link-item a {
-            color: var(--dark);
-            text-decoration: none;
-            transition: all 0.2s ease;
-            display: block;
-            padding: 8px 0;
-            border-radius: 5px;
-            padding-left: 10px;
-        }
-
-        .link-item a:hover {
-            color: var(--primary);
-            background: rgba(108, 92, 231, 0.1);
-            transform: translateX(5px);
-        }
-
-        .link-item a i {
-            margin-right: 8px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .category {
-            font-weight: 500;
-            margin: 15px 0 10px;
-            color: var(--primary);
-            font-size: 1.1rem;
-            padding-left: 10px;
-            border-left: 3px solid var(--primary);
-        }
-
-        .external-frame {
-            position: fixed;
-            top: 0;
-            left: var(--sidebar-width);
-            width: calc(100% - var(--sidebar-width));
-            height: 100vh;
-            border: none;
-            display: none;
-            z-index: 50;
-            background: white;
-            transition: left 0.3s ease, width 0.3s ease;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding-left: 0;
-                padding-bottom: 80px;
-            }
-            .sidebar {
-                width: 100%;
-                height: 60px;
-                flex-direction: row;
-                bottom: 0;
-                top: auto;
-                padding: 0 10px;
-            }
-            .sidebar-item {
-                flex-direction: column;
-                margin-bottom: 0;
-                font-size: 0.8rem;
-                justify-content: center;
-                padding: 15px 0;
-            }
-            .sidebar-item i {
-                margin-right: 0;
-                margin-bottom: 5px;
-                font-size: 1.8rem;
-            }
-            .sidebar-item span {
-                opacity: 1;
-                font-size: 0.7rem;
-            }
-            .image-viewer {
-                left: 0;
-            }
-            .external-frame {
-                left: 0;
-                width: 100%;
-                height: calc(100vh - 60px);
-                top: 0;
-            }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card {
+            background: var(--card-bg); border-radius: 15px; padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;
+            backdrop-filter: blur(10px); border: 1px solid var(--glass-effect);
             animation: fadeIn 0.5s ease forwards;
         }
-        .card:nth-child(2) { animation-delay: 0.1s; }
-        .card:nth-child(3) { animation-delay: 0.2s; }
-        .card:nth-child(4) { animation-delay: 0.3s; }
-        .card:nth-child(5) { animation-delay: 0.4s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); }
+        .card-header {
+            display: flex; align-items: center; margin-bottom: 20px; padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .card-icon {
+            width: 50px; height: 50px; border-radius: 12px; display: flex;
+            align-items: center; justify-content: center; margin-right: 15px; color: white;
+            font-size: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s ease;
+        }
+        .card-title { font-size: 1.3rem; font-weight: 500; }
+        .link-list { list-style: none; }
+        .link-item { margin-bottom: 12px; position: relative; padding-left: 0px; }
+        .link-item a {
+            color: var(--dark); text-decoration: none; transition: all 0.2s ease;
+            display: block; padding: 8px 0; border-radius: 5px; padding-left: 10px;
+        }
+        .link-item a:hover {
+            color: var(--primary); background: rgba(108, 92, 231, 0.1); transform: translateX(5px);
+        }
+        .link-item a i { margin-right: 8px; width: 20px; text-align: center; }
+        .category {
+            font-weight: 500; margin: 15px 0 10px; color: var(--primary);
+            font-size: 1.1rem; padding-left: 10px; border-left: 3px solid var(--primary);
+        }
+        .external-frame {
+            position: fixed; top: 0; left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width)); height: 100vh;
+            border: none; display: none; z-index: 50; background: white;
+            transition: left 0.3s ease, width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            body { padding-left: 0; padding-bottom: 80px; }
+            .sidebar { width: 100%; height: 60px; flex-direction: row; bottom: 0; top: auto; padding: 0 10px; }
+            .sidebar-item { flex-direction: column; margin-bottom: 0; font-size: 0.8rem; justify-content: center; padding: 15px 0; }
+            .sidebar-item i { margin-right: 0; margin-bottom: 5px; font-size: 1.8rem; }
+            .external-frame { left: 0; width: 100%; height: calc(100vh - 60px); top: 0; }
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .card:nth-child(2) { animation-delay: 0.1s; } .card:nth-child(3) { animation-delay: 0.2s; }
+        .card:nth-child(4) { animation-delay: 0.3s; } .card:nth-child(5) { animation-delay: 0.4s; }
 
-        /* ---------------- 新增：本地配置相关样式 (尽量不影响原有布局) ---------------- */
+        /* 配置按钮样式 */
         #config-trigger {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #2d3436;
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 2000; /* 确保在最上层 */
-            transition: transform 0.3s;
-            border: none;
+            position: fixed; bottom: 20px; right: 20px; background: #2d3436; color: white;
+            width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 2000; transition: transform 0.3s; border: none;
         }
-        #config-trigger:hover {
-            transform: scale(1.1) rotate(90deg);
-            background: #6c5ce7;
-        }
-
+        #config-trigger:hover { transform: scale(1.1) rotate(90deg); background: #6c5ce7; }
         .config-modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            z-index: 3000;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(5px);
         }
         .config-modal {
-            background: white;
-            width: 90%;
-            max-width: 600px;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-        }
-        .config-modal h3 {
-            margin-bottom: 15px;
-            color: var(--dark);
+            background: white; width: 90%; max-width: 600px; border-radius: 15px; padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column;
         }
         .config-textarea {
-            width: 100%;
-            height: 300px;
-            padding: 15px;
-            font-family: monospace;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            resize: vertical;
-            background: #f9f9f9;
-            font-size: 14px;
+            width: 100%; height: 300px; padding: 15px; font-family: monospace;
+            border: 1px solid #ddd; border-radius: 8px; resize: vertical; background: #f9f9f9; font-size: 14px;
         }
-        .config-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .c-btn {
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-        }
+        .config-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .c-btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 500; }
         .c-btn-save { background: var(--primary); color: white; }
         .c-btn-cancel { background: #eee; color: #333; }
         .c-btn-reset { background: #ff7675; color: white; margin-right: auto; }
-
     </style>
 </head>
 <body>
 
-<!-- 侧边栏 (保持原样) -->
 <div class="sidebar">
     <a href="#" class="sidebar-item active" id="home-btn">
-        <i class="fas fa-home"></i>
-        <span>Home</span>
+        <i class="fas fa-home"></i> <span>Home</span>
     </a>
-
     <a href="#" class="sidebar-item" id="goodlike-btn">
-        <i class="fas fa-thumbs-up"></i>
-        <span>Good Like</span>
+        <i class="fas fa-thumbs-up"></i> <span>Good Like</span>
     </a>
-
     <a href="#" class="sidebar-item" id="map-btn">
-        <i class="fas fa-map-marked-alt"></i>
-        <span>Office Map</span>
+        <i class="fas fa-map-marked-alt"></i> <span>Office Map</span>
     </a>
 </div>
 
-<!-- Iframe (保持原样) -->
-<iframe id="external-frame" class="external-frame" src="../pags/commonWeb/commonWeb.html"></iframe>
+<!--
+    修正 iframe 路径：
+    如果 index.html 在根目录，访问 pags 文件夹直接用 pags/xxx 即可
+-->
+<iframe id="external-frame" class="external-frame" src="pags/commonWeb/commonWeb.html"></iframe>
 
-<!-- 图片查看器 (保持原样) -->
 <div class="image-viewer" id="image-viewer">
-    <div class="close-btn" id="close-btn">
-        <i class="fas fa-times"></i>
-    </div>
-    <img src="../src/haixing_offices_rooms.png" alt="Office Map">
+    <div class="close-btn" id="close-btn"><i class="fas fa-times"></i></div>
+    <!-- 修正图片路径：如果 index.html 在根目录，图片在 src/xxx -->
+    <img src="src/haixing_offices_rooms.png" alt="Office Map">
 </div>
 
-<!-- 主容器 (保持原样) -->
 <div class="container" id="main-container">
     <header>
         <h1 id="page-title">Roombox Space</h1>
         <p class="subtitle" id="page-subtitle">Job Link Navigation · Efficient office assistant</p>
     </header>
-
-    <div class="grid" id="cards-container">
-        <!-- JS 将渲染卡片到这里 -->
-    </div>
+    <div class="grid" id="cards-container"></div>
 </div>
 
-<!-- ================= 新增：配置按钮与弹窗 ================= -->
 <button id="config-trigger" title="配置数据"><i class="fas fa-cog"></i></button>
 
 <div id="config-modal-overlay" class="config-modal-overlay">
@@ -481,86 +186,50 @@
     </div>
 </div>
 
-<!-- ================= JavaScript 逻辑 ================= -->
 <script>
-    // --- 1. 定义默认配置 (游客模式) ---
     const defaultConfig = {
         "title": "Welcome to Roombox",
         "subtitle": "Guest Mode (Click the gear icon to load your config)",
         "cards": [
             {
-                "id": "info",
-                "title": "欢迎使用",
-                "icon": "fas fa-info-circle",
-                "iconBg": "linear-gradient(45deg, #a8c0ff 0%, #3f2b96 100%)",
-                "links": [
-                    {
-                        "title": "如何加载私有数据？",
-                        "url": "#",
-                        "remark": "点击右下角的设置图标，粘贴你的JSON配置即可。"
-                    },
-                    {
-                        "title": "GitHub Repo",
-                        "url": "https://github.com/hotgold90000/GoodLike",
-                        "icon": "fab fa-github"
-                    }
-                ]
+                "id": "info", "title": "欢迎使用", "icon": "fas fa-info-circle", "iconBg": "linear-gradient(45deg, #a8c0ff 0%, #3f2b96 100%)",
+                "links": [ { "title": "如何加载私有数据？", "url": "#", "remark": "点击右下角的设置图标，粘贴你的JSON配置即可。" } ]
             }
         ]
     };
-
     const STORAGE_KEY = 'roombox_private_config_v1';
 
-    // --- 2. 配置管理逻辑 ---
     function loadConfig() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-            try {
-                return JSON.parse(saved);
-            } catch (e) {
-                console.error("配置解析错误:", e);
-                return defaultConfig;
-            }
+            try { return JSON.parse(saved); } catch (e) { return defaultConfig; }
         }
         return defaultConfig;
     }
 
-    // 打开配置弹窗
     document.getElementById('config-trigger').addEventListener('click', () => {
         const current = localStorage.getItem(STORAGE_KEY);
         const textArea = document.getElementById('config-textarea');
-        // 如果有本地配置，显示本地配置；如果没有，留空方便粘贴
         textArea.value = current ? JSON.stringify(JSON.parse(current), null, 4) : '';
         document.getElementById('config-modal-overlay').style.display = 'flex';
     });
 
-    // 关闭配置弹窗
     window.closeConfigModal = function() {
         document.getElementById('config-modal-overlay').style.display = 'none';
     }
 
-    // 保存配置
     window.saveConfig = function() {
         const val = document.getElementById('config-textarea').value.trim();
-        if (!val) {
-            alert("内容不能为空");
-            return;
-        }
+        if (!val) { alert("内容不能为空"); return; }
         try {
             const json = JSON.parse(val);
-            // 简单验证格式
-            if (!json.cards) {
-                throw new Error("配置缺少 cards 数组");
-            }
+            if (!json.cards) throw new Error("配置缺少 cards 数组");
             localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
             alert("配置保存成功！页面将刷新。");
             location.reload();
-        } catch (e) {
-            alert("JSON 格式错误，请检查！\n" + e.message);
-        }
+        } catch (e) { alert("JSON 格式错误，请检查！\n" + e.message); }
     }
 
-    // 重置配置
     window.resetConfig = function() {
         if(confirm("确定要删除本地配置并恢复到游客模式吗？")) {
             localStorage.removeItem(STORAGE_KEY);
@@ -568,26 +237,25 @@
         }
     }
 
-    // 点击遮罩关闭
     document.getElementById('config-modal-overlay').addEventListener('click', (e) => {
         if (e.target.id === 'config-modal-overlay') closeConfigModal();
     });
 
-    // --- 3. 核心渲染逻辑 (保留你的原有逻辑) ---
-    function renderDashboard(commonConfig) {
+    // --- 核心修复：变量名统一 ---
+    function renderDashboard(configData) { // 这里的参数改个名，避免混淆
         const titleEl = document.getElementById('page-title');
         const subtitleEl = document.getElementById('page-subtitle');
 
-        // 安全检查，防止字段缺失报错
-        if (titleEl) titleEl.textContent = indexConfig.title || "Roombox Space";
-        if (subtitleEl) subtitleEl.textContent = indexConfig.subtitle || "Navigation";
+        // 使用传入的 configData，而不是不存在的 indexConfig
+        if (titleEl) titleEl.textContent = configData.title || "Roombox Space";
+        if (subtitleEl) subtitleEl.textContent = configData.subtitle || "Navigation";
 
         const container = document.getElementById('cards-container');
         container.innerHTML = '';
 
-        if (!indexConfig.cards) return;
+        if (!configData.cards) return;
 
-        indexConfig.cards.forEach((card, index) => {
+        configData.cards.forEach((card, index) => {
             const cardElement = document.createElement('div');
             cardElement.className = `card card-${card.id || index}`;
             cardElement.style.animationDelay = `${index * 0.1}s`;
@@ -605,7 +273,6 @@
             cardTitle.textContent = card.title;
 
             cardHeader.appendChild(cardTitle);
-            // 只有当图标存在时才添加到头部 (修复可能的布局问题)
             if (card.icon || card.iconBg) {
                 cardHeader.prepend(cardIcon);
             } else {
@@ -639,46 +306,32 @@
                             iconHTML = `<i class="fas fa-link"></i>`;
                         }
                         linkElement.innerHTML = `${iconHTML}${link.title}`;
+                        if (link.remark) linkElement.title = link.remark;
 
-                        if (link.remark) {
-                            linkElement.title = link.remark;
-                        }
-
-                        // 特殊链接处理逻辑 (保留你的点击动效)
                         linkElement.addEventListener('click', function(e) {
-                            if (!link.url.startsWith('http') && !link.url.startsWith('../') && !link.url.startsWith('/')) {
-                                return;
-                            }
-                            // 允许普通跳转，但也保留动效
-                            // e.preventDefault(); // 注释掉这行，否则 target="_blank" 可能失效
+                            if (!link.url.startsWith('http') && !link.url.startsWith('../') && !link.url.startsWith('/')) return;
                             this.style.transform = 'scale(0.95)';
-                            setTimeout(() => {
-                                this.style.transform = '';
-                            }, 200);
+                            setTimeout(() => { this.style.transform = ''; }, 200);
                         });
-
                         listItem.appendChild(linkElement);
                     }
                     linkList.appendChild(listItem);
                 });
             }
-
             cardElement.appendChild(cardHeader);
             cardElement.appendChild(linkList);
             container.appendChild(cardElement);
         });
     }
 
-    // --- 4. 初始化与侧边栏事件 (保持你的原有逻辑) ---
     document.addEventListener('DOMContentLoaded', function() {
+        // 1. 获取配置
+        const config = loadConfig();
 
-        // 关键改变：不从 commonConfig.js 读，而是从 LocalStorage 读
-        const commonConfig = loadConfig();
+        // 2. 渲染 (修复：传入正确的变量 config)
+        renderDashboard(config);
 
-        // 初始化渲染
-        renderDashboard(indexConfig);
-
-        // 获取DOM元素
+        // 3. 绑定按钮事件
         const homeBtn = document.getElementById('home-btn');
         const mapBtn = document.getElementById('map-btn');
         const goodLikeBtn = document.getElementById('goodlike-btn');
@@ -687,51 +340,40 @@
         const mainContainer = document.getElementById('main-container');
         const externalFrame = document.getElementById('external-frame');
 
-        // 通用函数：重置所有视图状态
         function resetView() {
-            document.querySelectorAll('.sidebar-item').forEach(item => {
-                item.classList.remove('active');
-            });
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
             imageViewer.style.display = 'none';
             externalFrame.style.display = 'none';
             mainContainer.style.display = 'none';
         }
 
-        // Home 按钮
         if (homeBtn) {
             homeBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                resetView();
+                e.preventDefault(); resetView();
                 this.classList.add('active');
                 mainContainer.style.display = 'block';
             });
         }
 
-        // Good Like 按钮
         if (goodLikeBtn) {
             goodLikeBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                resetView();
+                e.preventDefault(); resetView();
                 this.classList.add('active');
                 externalFrame.style.display = 'block';
             });
         }
 
-        // Office Map 按钮
         if (mapBtn) {
             mapBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                resetView();
+                e.preventDefault(); resetView();
                 this.classList.add('active');
                 imageViewer.style.display = 'flex';
             });
         }
 
-        // 关闭按钮
         if (closeBtn) {
             closeBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                homeBtn.click();
+                e.preventDefault(); homeBtn.click();
             });
         }
     });

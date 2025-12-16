@@ -40,25 +40,6 @@ const commonConfig = {
             ]
         },
         {
-            "title": "Tools",
-            "id": "gridContainer2",
-            "items": [
-                {
-                    "name": "OA-XDF",
-                    "url": "https://oa.xdf.cn/",
-                    "img": "https://oa.xdf.cn/oanew/img/d-bg-p.11c8c886.png",
-                    "remark": "XDF Portal"
-                },
-                {
-                    "name": "Office Map",
-                    "url": "https://hotgold90000.github.io/GoodLike/src/haixing_offices_rooms.png",
-                    "img": "https://www.svgrepo.com/show/500639/office-building.svg",
-                    "remark": "Office Map"
-                },
-            ]
-        },
-
-        {
             "title": "Readings",
             "id": "gridContainer4",
             "items": [

@@ -44,6 +44,12 @@ const commonConfig = {
             "id": "gridContainer4",
             "items": [
                 {
+                    "name": "DialectLang",
+                    "url": "https://hotgold90000.github.io/DilalectLang/",
+                    "img": "https://ts1.tc.mm.bing.net/th/id/R-C.1dc18b23a16a216ad63874ea083ece8c?rik=XAx8qWkgvj2b7w&riu=http%3a%2f%2fpic.xfdown.com%2fuploads%2f2023-1%2f2023151732563405.png&ehk=qfX2rc6XY%2fmDj3J%2faJli5tdwU%2fNJ4OcDraSHtUH%2flq0%3d&risl=&pid=ImgRaw&r=0",
+                    "remark": "Dialect record"
+                },
+                {
                     "name": "Reddit",
                     "url": "https://www.reddit.com/",
                     "img": "https://www.svgrepo.com/show/349489/reddit.svg",

@@ -76,8 +76,20 @@ const commonConfig = {
             ]
         },
         {
-            "title": "Tools-Pic",
+            "title": "VIDEOS",
             "id": "gridContainer5",
+            "items": [
+                {
+                    "name": "HaoHaoKan",
+                    "url": "https://103.194.185.51:51123",
+                    "img": "https://vf.zclmjc.com/vod_pc_static_hkan/images/p/logo_horizontal.png?ver=ggewasd",
+                    "remark": "Perfect Video"
+                }
+            ]
+        },
+        {
+            "title": "Tools-Pic",
+            "id": "gridContainer6",
             "items": [
                 {
                     "name": "Emojipedia",

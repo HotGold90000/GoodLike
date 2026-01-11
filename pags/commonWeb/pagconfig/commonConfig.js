@@ -36,6 +36,12 @@ const commonConfig = {
                     "url": "https://aistudio.google.com/",
                     "img": "https://static.vecteezy.com/system/resources/previews/046/861/646/original/gemini-icon-on-a-transparent-background-free-png.png",
                     "remark": "use Gemini Preview freely"
+                },
+                {
+                    "name": "XiaoZhi",
+                    "url": "https://xiaozhi.xdf.cn",
+                    "img": "https://oss-xlss.xdf.cn/xzgpt-resource/template/avatar/xz-male-avatar.png",
+                    "remark": "AI XDF"
                 }
             ]
         },

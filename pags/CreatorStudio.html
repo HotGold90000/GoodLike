@@ -129,6 +129,14 @@
                         <div class="history-dropdown" id="hist_scenario"></div>
                     </div>
 
+                    <!-- Output Completeness (Moved here) -->
+                    <div class="col-span-2 relative input-wrapper">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_completeness">OUTPUT COMPLETENESS</label>
+                        <input type="text" id="completeness" value="Full Implementation (完整实现)" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" autocomplete="off">
+                        <button onclick="clearInput('completeness')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <div class="history-dropdown" id="hist_completeness"></div>
+                    </div>
+
                     <!-- Project Type -->
                     <div class="relative input-wrapper">
                         <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_project">PROJECT TYPE</label>
@@ -231,12 +239,12 @@
                 </div>
 
                 <!-- Output Completeness (Combo) -->
-                <div class="relative input-wrapper">
-                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_completeness">OUTPUT COMPLETENESS</label>
-                    <input type="text" id="completeness" value="Full Implementation (完整实现)" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" autocomplete="off">
-                    <button onclick="clearInput('completeness')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
-                    <div class="history-dropdown" id="hist_completeness"></div>
-                </div>
+<!--                <div class="relative input-wrapper">-->
+<!--                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_completeness">OUTPUT COMPLETENESS</label>-->
+<!--                    <input type="text" id="completeness" value="Full Implementation (完整实现)" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" autocomplete="off">-->
+<!--                    <button onclick="clearInput('completeness')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>-->
+<!--                    <div class="history-dropdown" id="hist_completeness"></div>-->
+<!--                </div>-->
 
                 <!-- NEW: Reference & Source Model -->
                 <div class="grid grid-cols-3 gap-3">
@@ -329,6 +337,7 @@
         en: {
             sec_context: "Context & Scenario",
             lbl_scenario: "GOAL / SCENARIO",
+            lbl_completeness: "OUTPUT COMPLETENESS",
             lbl_project: "PROJECT TYPE",
             lbl_lang: "LANGUAGE",
             lbl_os_ver: "OS / PLATFORM",
@@ -341,7 +350,7 @@
             lbl_req: "CORE TASK / REQUIREMENT",
             lbl_code: "CURRENT CODE",
             lbl_logs: "ERROR LOGS",
-            lbl_completeness: "OUTPUT COMPLETENESS",
+
             lbl_other_info: "REFERENCE INFO",
             lbl_source: "SOURCE",
             btn_copy: "Copy Prompt",
@@ -351,6 +360,7 @@
         cn: {
             sec_context: "上下文与场景",
             lbl_scenario: "目标 / 场景",
+            lbl_completeness: "输出完整度",
             lbl_project: "工程类型",
             lbl_lang: "编程语言",
             lbl_os_ver: "系统 / 平台",
@@ -363,7 +373,7 @@
             lbl_req: "核心需求 / 任务",
             lbl_code: "当前代码",
             lbl_logs: "错误日志",
-            lbl_completeness: "输出完整度",
+
             lbl_other_info: "参考信息 / 大模型建议",
             lbl_source: "来源模型",
             btn_copy: "复制提示词",

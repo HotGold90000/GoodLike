@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Studio v4.0</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        slate: { 850: '#1e293b', 900: '#0f172a' },
+                        primary: { 500: '#3b82f6', 600: '#2563eb' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Pro Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* Dropdown Styling */
+        .history-dropdown {
+            max-height: 0;
+            overflow-y: auto;
+            position: absolute;
+            z-index: 50;
+            width: 100%;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            border-radius: 0 0 0.5rem 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: max-height 0.15s ease-out;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .history-dropdown.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .dark .history-dropdown {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        /* Focus Ring & Input Styling */
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+
+        /* Clear Button Visibility */
+        .input-wrapper:hover .clear-btn,
+        .input-wrapper input:focus + .clear-btn,
+        .clear-btn:hover {
+            opacity: 1;
+        }
+
+        /* Modal Transition */
+        .modal-enter { opacity: 0; transform: scale(0.95); }
+        .modal-enter-active { opacity: 1; transform: scale(1); transition: all 0.2s ease-out; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans h-screen overflow-hidden flex flex-col transition-colors duration-0">
+
+<!-- Header -->
+<header class="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-gray-800 h-14 flex-none z-40">
+    <div class="max-w-[1600px] mx-auto px-4 h-full flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 w-8 h-8 rounded flex items-center justify-center font-bold text-lg">C</div>
+            <h1 class="text-lg font-bold tracking-tight text-gray-900 dark:text-white">Creator Studio <span class="text-xs font-normal opacity-50 ml-1">v4.0</span></h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="toggleTheme()" class="w-9 h-9 flex items-center justify-center rounded border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700" title="Toggle Theme">
+                <i class="fa-solid fa-moon dark:hidden"></i>
+                <i class="fa-solid fa-sun hidden dark:inline"></i>
+            </button>
+            <button onclick="toggleLanguage()" class="h-9 px-3 flex items-center justify-center rounded border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700">
+                <span id="lang-btn-text">CN</span>
+            </button>
+            <div class="h-4 w-px bg-gray-300 dark:bg-gray-700 mx-1"></div>
+            <button onclick="exportData()" class="h-9 w-9 flex items-center justify-center text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors" title="Export">
+                <i class="fa-solid fa-download"></i>
+            </button>
+            <label class="h-9 w-9 flex items-center justify-center cursor-pointer text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors" title="Import">
+                <i class="fa-solid fa-upload"></i>
+                <input type="file" id="import-file" class="hidden" onchange="importData(this)">
+            </label>
+        </div>
+    </div>
+</header>
+
+<!-- Main Workspace -->
+<main class="flex-1 flex overflow-hidden max-w-[1600px] mx-auto w-full relative">
+
+    <!-- LEFT PANEL: Editor -->
+    <div class="w-full lg:w-1/2 h-full flex flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 z-10">
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <!-- Section 1: Scenario -->
+            <div class="space-y-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-compass"></i> <span data-i18n="sec_context">CONTEXT & SCENARIO</span>
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Scenario (Now a Combo Input) -->
+                    <div class="col-span-2 relative input-wrapper">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_scenario">GOAL / SCENARIO</label>
+                        <input type="text" id="scenario" value="Code Implementation (代码编写)" onfocus="showHistory(this)" oninput="updateUI(); generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" autocomplete="off">
+                        <button onclick="clearInput('scenario')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <div class="history-dropdown" id="hist_scenario"></div>
+                    </div>
+
+                    <!-- Project Type -->
+                    <div class="relative input-wrapper">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_project">PROJECT TYPE</label>
+                        <input type="text" id="project_type" value="Android" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" autocomplete="off">
+                        <button onclick="clearInput('project_type')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <div class="history-dropdown" id="hist_project_type"></div>
+                    </div>
+
+                    <!-- Language -->
+                    <div class="relative input-wrapper">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_lang">LANGUAGE</label>
+                        <input type="text" id="language" value="Kotlin" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" autocomplete="off">
+                        <button onclick="clearInput('language')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <div class="history-dropdown" id="hist_language"></div>
+                    </div>
+
+                    <!-- OS Version -->
+                    <div class="relative input-wrapper">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_os_ver">OS VERSION</label>
+                        <input type="text" id="os_version" value="Android 12+" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" autocomplete="off">
+                        <button onclick="clearInput('os_version')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <div class="history-dropdown" id="hist_os_version"></div>
+                    </div>
+
+                    <!-- Output Lang (Now Combo) -->
+                    <div class="relative input-wrapper">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_output_lang">OUTPUT LANGUAGE</label>
+                        <input type="text" id="output_lang" value="Chinese (中文)" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" autocomplete="off">
+                        <button onclick="clearInput('output_lang')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <div class="history-dropdown" id="hist_output_lang"></div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-100 dark:border-gray-800">
+
+            <!-- Section 2: Tech -->
+            <div class="space-y-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-microchip"></i> <span data-i18n="sec_stack">TECH STACK</span>
+                </h3>
+
+                <div class="space-y-3">
+                    <div class="relative input-wrapper">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_must_use">MUST USE</label>
+                        <input type="text" id="tech_use" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" placeholder="e.g. Retrofit" autocomplete="off">
+                        <button onclick="clearInput('tech_use')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <div class="history-dropdown" id="hist_tech_use"></div>
+                    </div>
+
+                    <div class="relative input-wrapper">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_avoid">AVOID</label>
+                        <input type="text" id="tech_avoid" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" placeholder="e.g. XML" autocomplete="off">
+                        <button onclick="clearInput('tech_avoid')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <div class="history-dropdown" id="hist_tech_avoid"></div>
+                    </div>
+
+                    <div class="relative input-wrapper">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_style_principle">CODE STYLE</label>
+                        <input type="text" id="code_style" value="Clean Architecture, SOLID principles" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" autocomplete="off">
+                        <button onclick="clearInput('code_style')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <div class="history-dropdown" id="hist_code_style"></div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-100 dark:border-gray-800">
+
+            <!-- Section 3: Details -->
+            <div class="space-y-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-code"></i> <span data-i18n="sec_details">DETAILS & INPUT</span>
+                </h3>
+
+                <!-- Core Task -->
+                <div class="relative">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400" data-i18n="lbl_req">CORE TASK</label>
+                        <button onclick="openModal('request_desc')" class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400" title="Expand"><i class="fa-solid fa-expand text-xs"></i></button>
+                    </div>
+                    <textarea id="request_desc" rows="3" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 text-sm text-gray-900 dark:text-gray-100 resize-y" placeholder="..."></textarea>
+                </div>
+
+                <!-- Current Code -->
+                <div class="relative">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400" data-i18n="lbl_code">CURRENT CODE</label>
+                        <button onclick="openModal('current_code')" class="text-gray-400 hover:text-primary-600 dark:hover:text-primary-400" title="Expand"><i class="fa-solid fa-expand text-xs"></i></button>
+                    </div>
+                    <textarea id="current_code" rows="4" oninput="generatePrompt()" class="w-full font-mono text-xs bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 text-gray-900 dark:text-gray-100 resize-y" placeholder="// Paste code here"></textarea>
+                </div>
+
+                <!-- Error Logs (Auto-detected based on Scenario keyword) -->
+                <div id="log_container" class="hidden relative">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-semibold text-red-500 dark:text-red-400" data-i18n="lbl_logs">ERROR LOGS</label>
+                        <button onclick="openModal('error_logs')" class="text-red-400 hover:text-red-600" title="Expand"><i class="fa-solid fa-expand text-xs"></i></button>
+                    </div>
+                    <textarea id="error_logs" rows="4" oninput="generatePrompt()" class="w-full font-mono text-xs bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900 rounded p-2 text-red-800 dark:text-red-300 resize-y"></textarea>
+                </div>
+
+                <!-- Output Completeness (Combo) -->
+                <div class="relative input-wrapper">
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1" data-i18n="lbl_completeness">OUTPUT COMPLETENESS</label>
+                    <input type="text" id="completeness" value="Full Implementation (完整实现)" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded p-2 pr-8 text-sm text-gray-900 dark:text-gray-100" autocomplete="off">
+                    <button onclick="clearInput('completeness')" class="clear-btn absolute right-2 bottom-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                    <div class="history-dropdown" id="hist_completeness"></div>
+                </div>
+
+                <!-- NEW: Reference & Source Model -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-2 relative">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-semibold text-purple-600 dark:text-purple-400" data-i18n="lbl_other_info">OTHER REFERENCE / INFO</label>
+                            <button onclick="openModal('other_info')" class="text-gray-400 hover:text-purple-600" title="Expand"><i class="fa-solid fa-expand text-xs"></i></button>
+                        </div>
+                        <textarea id="other_info" rows="2" oninput="generatePrompt()" class="w-full font-mono text-xs bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-900 rounded p-2 text-gray-900 dark:text-gray-100 resize-y" placeholder="Content from other models..."></textarea>
+                    </div>
+
+                    <div class="col-span-1 relative input-wrapper">
+                        <label class="block text-xs font-semibold text-purple-600 dark:text-purple-400 mb-1" data-i18n="lbl_source">SOURCE</label>
+                        <input type="text" id="model_source" placeholder="e.g. Gemini" onfocus="showHistory(this)" oninput="generatePrompt()" class="w-full bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-900 rounded p-2 pr-8 text-xs text-gray-900 dark:text-gray-100 h-[34px] mt-[1px]" autocomplete="off">
+                        <button onclick="clearInput('model_source')" class="clear-btn absolute right-2 top-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 opacity-0 transition-opacity"><i class="fa-solid fa-circle-xmark"></i></button>
+                        <div class="history-dropdown" id="hist_model_source"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-8"></div>
+        </div>
+
+        <div class="flex-none p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-slate-900 flex justify-between items-center">
+            <button onclick="resetForm()" class="text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 px-3 py-2 rounded transition-colors">
+                <i class="fa-solid fa-trash-can mr-1"></i> <span data-i18n="btn_reset">Reset</span>
+            </button>
+            <div class="text-xs text-gray-400">v4.0</div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL: Preview -->
+    <div class="hidden lg:flex w-1/2 bg-gray-50 dark:bg-[#0d1117] flex-col h-full relative">
+        <div class="flex-none flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-primary-600 dark:text-primary-500"></i>
+                <h2 class="text-sm font-bold text-gray-700 dark:text-gray-200 tracking-wide" data-i18n="lbl_preview">EDITABLE PREVIEW</h2>
+            </div>
+            <button onclick="copyToClipboard()" id="copy-btn" class="flex items-center gap-2 bg-gray-900 hover:bg-black dark:bg-primary-600 dark:hover:bg-primary-500 text-white px-4 py-2 rounded text-sm font-medium shadow-sm transition-colors">
+                <i class="fa-regular fa-copy"></i>
+                <span data-i18n="btn_copy">Copy</span>
+            </button>
+        </div>
+        <div class="flex-1 p-0 relative">
+            <textarea id="preview_area" class="w-full h-full p-8 bg-transparent border-0 resize-none font-mono text-sm leading-relaxed text-gray-800 dark:text-gray-300 focus:ring-0" spellcheck="false"></textarea>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div id="expand-modal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-4xl h-[80vh] rounded-lg shadow-2xl flex flex-col border border-gray-200 dark:border-gray-700 transform transition-all scale-95 opacity-0" id="modal-content">
+            <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+                <h3 class="font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                    <i class="fa-solid fa-maximize"></i> <span id="modal-title">Editor</span>
+                </h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="flex-1 p-0">
+                <textarea id="modal-textarea" class="w-full h-full p-6 bg-gray-50 dark:bg-slate-950 resize-none border-0 focus:ring-0 font-mono text-sm text-gray-800 dark:text-gray-200 leading-relaxed"></textarea>
+            </div>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3 bg-gray-50 dark:bg-slate-900 rounded-b-lg">
+                <button onclick="closeModal()" class="px-4 py-2 rounded text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-800 transition">Cancel</button>
+                <button onclick="saveModal()" class="px-4 py-2 rounded text-sm font-medium bg-primary-600 text-white hover:bg-primary-700 transition">Done</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const APP_VERSION = "4.0";
+    let isDarkMode = false;
+    let uiLanguage = 'en';
+    let currentModalTarget = null;
+
+    // Default History / Presets
+    let historyData = {
+        scenario: ["Code Implementation (代码编写)", "Troubleshooting (问题排查)", "Tech Discussion (技术交流)", "Code Refactor (代码重构)"],
+        project_type: ["Android", "Web", "Python", "Flutter"],
+        language: ["Kotlin", "Java", "Python", "HTML/JS"],
+        os_version: ["Android 12+", "Android 10+", "Modern Browsers"],
+        output_lang: ["Chinese (中文)", "English"],
+        tech_use: ["Retrofit, Hilt", "Jetpack Compose", "Tailwind CSS"],
+        tech_avoid: ["XML", "AsyncTask", "jQuery"],
+        code_style: ["Clean Architecture, SOLID", "MVVM, Fast & Concise"],
+        completeness: ["Full Implementation (完整实现)", "Incremental Changes Only (仅增量)", "Explanation Only (仅解释)"],
+        model_source: ["Gemini", "ChatGPT", "Deepseek", "Claude", "Copilot", "Grok"]
+    };
+
+    const i18n = {
+        en: {
+            sec_context: "Context & Scenario",
+            lbl_scenario: "GOAL / SCENARIO",
+            lbl_project: "PROJECT TYPE",
+            lbl_lang: "LANGUAGE",
+            lbl_os_ver: "OS / PLATFORM",
+            lbl_output_lang: "OUTPUT LANGUAGE",
+            sec_stack: "Tech Stack",
+            lbl_must_use: "MUST USE",
+            lbl_avoid: "AVOID",
+            lbl_style_principle: "CODE STYLE",
+            sec_details: "Details & Input",
+            lbl_req: "CORE TASK / REQUIREMENT",
+            lbl_code: "CURRENT CODE",
+            lbl_logs: "ERROR LOGS",
+            lbl_completeness: "OUTPUT COMPLETENESS",
+            lbl_other_info: "REFERENCE INFO",
+            lbl_source: "SOURCE",
+            btn_copy: "Copy Prompt",
+            btn_reset: "Reset All",
+            lbl_preview: "EDITABLE PREVIEW"
+        },
+        cn: {
+            sec_context: "上下文与场景",
+            lbl_scenario: "目标 / 场景",
+            lbl_project: "工程类型",
+            lbl_lang: "编程语言",
+            lbl_os_ver: "系统 / 平台",
+            lbl_output_lang: "输出语言",
+            sec_stack: "技术栈",
+            lbl_must_use: "强制使用",
+            lbl_avoid: "避免使用",
+            lbl_style_principle: "代码风格",
+            sec_details: "详情与输入",
+            lbl_req: "核心需求 / 任务",
+            lbl_code: "当前代码",
+            lbl_logs: "错误日志",
+            lbl_completeness: "输出完整度",
+            lbl_other_info: "参考信息 / 大模型建议",
+            lbl_source: "来源模型",
+            btn_copy: "复制提示词",
+            btn_reset: "清空重置",
+            lbl_preview: "提示词预览 (可编辑)"
+        }
+    };
+
+    // --- Init ---
+    window.addEventListener('DOMContentLoaded', () => {
+        loadSettings();
+        applyTheme();
+        applyLanguage();
+        updateUI();
+
+        // Click outside to close dropdowns
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.input-wrapper')) {
+                document.querySelectorAll('.history-dropdown').forEach(el => {
+                    el.style.maxHeight = '0';
+                    el.classList.remove('open');
+                });
+            }
+        });
+    });
+
+    // --- UI Logic ---
+    function toggleTheme() {
+        isDarkMode = !isDarkMode;
+        applyTheme();
+        saveSettings();
+    }
+    function applyTheme() {
+        document.documentElement.classList.toggle('dark', isDarkMode);
+    }
+    function toggleLanguage() {
+        uiLanguage = uiLanguage === 'en' ? 'cn' : 'en';
+        applyLanguage();
+        saveSettings();
+        generatePrompt();
+    }
+    function applyLanguage() {
+        document.getElementById('lang-btn-text').textContent = uiLanguage === 'en' ? 'CN' : 'EN';
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (i18n[uiLanguage][key]) el.textContent = i18n[uiLanguage][key];
+        });
+    }
+
+    // --- Input & Combo Logic ---
+    function clearInput(id) {
+        document.getElementById(id).value = '';
+        generatePrompt();
+        document.getElementById(id).focus();
+    }
+
+    function showHistory(inputElement) {
+        // Close others
+        document.querySelectorAll('.history-dropdown').forEach(el => {
+            if(el.id !== `hist_${inputElement.id}`) {
+                el.style.maxHeight = '0';
+                el.classList.remove('open');
+            }
+        });
+
+        const id = inputElement.id;
+        const dropdown = document.getElementById(`hist_${id}`);
+        if (!dropdown) return;
+
+        const items = historyData[id] || [];
+        if (items.length === 0) return;
+
+        dropdown.innerHTML = items.map(item => `
+            <div onclick="selectHistory('${id}', '${item.replace(/'/g, "\\'")}')"
+                 class="px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer border-b border-gray-50 dark:border-gray-800 last:border-0 text-gray-700 dark:text-gray-300">
+                ${item}
+            </div>
+        `).join('');
+
+        dropdown.classList.add('open');
+        dropdown.style.maxHeight = '250px';
+    }
+
+    function selectHistory(inputId, value) {
+        document.getElementById(inputId).value = value;
+        // Auto close
+        const dropdown = document.getElementById(`hist_${inputId}`);
+        dropdown.style.maxHeight = '0';
+        dropdown.classList.remove('open');
+        // Update
+        generatePrompt();
+        // Update UI if scenario changed
+        if(inputId === 'scenario') updateUI();
+    }
+
+    function updateUI() {
+        const scenarioVal = document.getElementById('scenario').value.toLowerCase();
+        const logContainer = document.getElementById('log_container');
+        // Fuzzy matching logic for showing logs
+        const keywords = ['trouble', 'debug', 'fix', 'error', 'bug', 'fail', '排查', '修复', '错误'];
+        const shouldShowLogs = keywords.some(k => scenarioVal.includes(k));
+
+        if (shouldShowLogs) logContainer.classList.remove('hidden');
+        else logContainer.classList.add('hidden');
+    }
+
+    // --- Modal ---
+    function openModal(targetId) {
+        currentModalTarget = targetId;
+        const el = document.getElementById(targetId);
+        document.getElementById('modal-textarea').value = el.value;
+        document.getElementById('modal-title').innerText = el.previousElementSibling ? el.previousElementSibling.innerText : "Editor";
+        const modal = document.getElementById('expand-modal');
+        const content = document.getElementById('modal-content');
+        modal.classList.remove('hidden');
+        setTimeout(() => { content.classList.remove('scale-95', 'opacity-0'); content.classList.add('scale-100', 'opacity-100'); }, 10);
+    }
+    function closeModal() {
+        const modal = document.getElementById('expand-modal');
+        const content = document.getElementById('modal-content');
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => { modal.classList.add('hidden'); currentModalTarget = null; }, 200);
+    }
+    function saveModal() {
+        if (currentModalTarget) {
+            document.getElementById(currentModalTarget).value = document.getElementById('modal-textarea').value;
+            generatePrompt();
+        }
+        closeModal();
+    }
+
+    // --- Prompt Engine (Fuzzy Logic) ---
+    function generatePrompt() {
+        const v = (id) => document.getElementById(id).value;
+        const vals = {
+            scenario: v('scenario'), project: v('project_type'), lang: v('language'),
+            os: v('os_version'), outLang: v('output_lang'), techUse: v('tech_use'),
+            techAvoid: v('tech_avoid'), style: v('code_style'), req: v('request_desc'),
+            code: v('current_code'), logs: v('error_logs'),
+            otherInfo: v('other_info'), modelSrc: v('model_source'), completeness: v('completeness')
+        };
+
+        const isChinese = vals.outLang.includes('Chinese') || vals.outLang.includes('中文');
+
+        let p = "";
+
+        // --- Template Building ---
+        if (isChinese) {
+            p += `你是一名精通 ${vals.project} 开发的资深架构师，专注于 ${vals.lang} 技术栈。\n`;
+            p += `请扮演一名高级技术导师 (Tech Lead)。\n\n`;
+            p += `### 1. 工程上下文 (Context)\n`;
+            p += `- **工程类型**: ${vals.project}\n`;
+            p += `- **编程语言**: ${vals.lang}\n`;
+            if (vals.os) p += `- **系统版本**: ${vals.os}\n`;
+            p += `- **必须使用**: ${vals.techUse || "遵循最佳实践"}\n`;
+            if (vals.techAvoid) p += `- **禁止使用**: ${vals.techAvoid}\n`;
+            if (vals.style) p += `- **代码风格**: ${vals.style}\n`;
+            p += `\n`;
+
+            p += `### 2. 任务目标 (Task)\n`;
+            p += `**类型**: ${vals.scenario}\n`;
+            p += `**输出语言**: 中文 (Chinese)\n\n`;
+
+            p += `### 3. 输入数据 (Input)\n`;
+            if (vals.req) p += `**核心需求**:\n${vals.req}\n\n`;
+            if (vals.code) p += `**当前代码**:\n\`\`\`${vals.lang.toLowerCase().split('/')[0]}\n${vals.code}\n\`\`\`\n\n`;
+            // Logic: Only show logs if present
+            if (vals.logs && document.getElementById('log_container').classList.contains('hidden') === false) {
+                p += `**错误日志**:\n\`\`\`text\n${vals.logs}\n\`\`\`\n\n`;
+            }
+            if (vals.otherInfo) {
+                p += `**参考信息${vals.modelSrc ? ` (来源: ${vals.modelSrc})` : ''}**:\n${vals.otherInfo}\n\n`;
+            }
+
+            p += `### 4. 输出要求 (Requirements)\n`;
+            p += `- **完整度**: ${vals.completeness}\n`;
+            p += `- **准确性优先**: 如果信息不足，请先提问再写代码。\n`;
+            p += `- **防误解**: 如果我的输入存在可能导致歧义的明显错别字，请先指出并确认，不要强行输出。\n`;
+            p += `- **规范**: 严格遵循 ${vals.style || 'Clean Architecture'}。\n`;
+
+        } else {
+            p += `You are an expert ${vals.project} Engineer specialized in ${vals.lang}.\n`;
+            p += `Your Role: Senior Architect & Mentor.\n\n`;
+            p += `### 1. Project Context\n`;
+            p += `- **Type**: ${vals.project}\n`;
+            p += `- **Language**: ${vals.lang}\n`;
+            if (vals.os) p += `- **Platform**: ${vals.os}\n`;
+            p += `- **Must Use**: ${vals.techUse || "Best Practices"}\n`;
+            if (vals.techAvoid) p += `- **Avoid**: ${vals.techAvoid}\n`;
+            if (vals.style) p += `- **Code Style**: ${vals.style}\n`;
+            p += `\n`;
+
+            p += `### 2. Task Information\n`;
+            p += `**Goal**: ${vals.scenario}\n`;
+            p += `**Output Language**: English\n\n`;
+
+            p += `### 3. Input Data\n`;
+            if (vals.req) p += `**Requirement**:\n${vals.req}\n\n`;
+            if (vals.code) p += `**Current Code**:\n\`\`\`${vals.lang.toLowerCase().split('/')[0]}\n${vals.code}\n\`\`\`\n\n`;
+            if (vals.logs && document.getElementById('log_container').classList.contains('hidden') === false) {
+                p += `**Error Logs**:\n\`\`\`text\n${vals.logs}\n\`\`\`\n\n`;
+            }
+            if (vals.otherInfo) {
+                p += `**Reference Info${vals.modelSrc ? ` (Source: ${vals.modelSrc})` : ''}**:\n${vals.otherInfo}\n\n`;
+            }
+
+            p += `### 4. Output Requirements\n`;
+            p += `- **Completeness**: ${vals.completeness}\n`;
+            p += `- **Accuracy First**: Ask questions if context is missing.\n`;
+            p += `- **Typo Check**: If there are typos in my input that cause ambiguity, please ask for clarification before coding.\n`;
+            p += `- **Style**: Strictly follow ${vals.style || 'Clean Architecture'} and SOLID.\n`;
+        }
+
+        document.getElementById('preview_area').value = p;
+        saveInputHistory(); // Autosave draft inputs to history
+    }
+
+    // --- Persistence ---
+    function copyToClipboard() {
+        const text = document.getElementById('preview_area').value;
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.getElementById('copy-btn');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-check"></i> Copied`;
+            btn.className = `flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded text-sm font-medium shadow-sm transition-colors`;
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.className = `flex items-center gap-2 ${isDarkMode ? 'bg-primary-600' : 'bg-gray-900'} hover:bg-black dark:hover:bg-primary-500 text-white px-4 py-2 rounded text-sm font-medium shadow-sm transition-colors`;
+            }, 2000);
+        });
+    }
+
+    function saveInputHistory() {
+        // Save unique values to history dropdowns if not exists
+        const inputs = ['scenario', 'project_type', 'language', 'os_version', 'output_lang', 'tech_use', 'tech_avoid', 'code_style', 'completeness', 'model_source'];
+        inputs.forEach(id => {
+            const val = document.getElementById(id).value;
+            if(val && !historyData[id].includes(val)) {
+                historyData[id].unshift(val);
+                if(historyData[id].length > 15) historyData[id].pop();
+            }
+        });
+        saveSettings();
+    }
+
+    function resetForm() {
+        if(confirm("Clear all inputs?")) {
+            ['request_desc', 'current_code', 'error_logs', 'other_info'].forEach(id => document.getElementById(id).value = "");
+            generatePrompt();
+        }
+    }
+
+    function saveSettings() {
+        const data = { version: APP_VERSION, isDarkMode, uiLanguage, history: historyData };
+        localStorage.setItem('creator_studio_config_v4', JSON.stringify(data));
+    }
+
+    function loadSettings() {
+        const raw = localStorage.getItem('creator_studio_config_v4');
+        if (raw) {
+            const data = JSON.parse(raw);
+            isDarkMode = data.isDarkMode || false;
+            uiLanguage = data.uiLanguage || 'en';
+            if (data.history) historyData = data.history;
+        }
+    }
+
+    function exportData() {
+        const data = { meta: "Creator Studio V4 Config", date: new Date().toISOString(), config: { isDarkMode, uiLanguage, history: historyData } };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `creator-studio-v4-${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    }
+
+    function importData(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const json = JSON.parse(e.target.result);
+                if (json.config) {
+                    isDarkMode = json.config.isDarkMode;
+                    uiLanguage = json.config.uiLanguage;
+                    historyData = json.config.history || historyData;
+                    applyTheme();
+                    applyLanguage();
+                    saveSettings();
+                    alert("Imported successfully!");
+                }
+            } catch (err) { alert("Invalid File"); }
+        };
+        reader.readAsText(file);
+    }
+</script>
+</body>
+</html>

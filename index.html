@@ -117,8 +117,6 @@
             justify-content: center; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             z-index: 2000; transition: transform 0.3s; border: none;
         }
-        /*#config-trigger .fa-cog::before{content:"";width: 100px;height: 100px;position: absolute;left: 0;top: 0;background: url("src/flag.png");}*/
-
         #config-trigger:hover {
             /*transform: scale(1.1) rotate(90deg); */
             background: #6c5ce7;
@@ -157,20 +155,21 @@
         <i class="fas fa-laptop-code"></i> <span>Creator Studio</span>
     </a>
 
+    <!-- [新增] DeepThink Prompt 入口 -->
+    <a href="#" class="sidebar-item" id="deepthink-btn">
+        <i class="fas fa-brain"></i> <span>DeepThink Prompt</span>
+    </a>
+
     <a href="#" class="sidebar-item" id="map-btn">
         <i class="fas fa-map-marked-alt"></i> <span>Office Map</span>
     </a>
 </div>
 
-<!--
-    修正 iframe 路径：
-    如果 index.html 在根目录，访问 pags 文件夹直接用 pags/xxx 即可
--->
+<!-- iframe 容器 -->
 <iframe id="external-frame" class="external-frame" src="pags/commonWeb/commonWeb.html"></iframe>
 
 <div class="image-viewer" id="image-viewer">
     <div class="close-btn" id="close-btn"><i class="fas fa-times"></i></div>
-    <!-- 修正图片路径：如果 index.html 在根目录，图片在 src/xxx -->
     <img src="src/haixing_offices_rooms.png" alt="Office Map">
 </div>
 
@@ -252,12 +251,10 @@
         if (e.target.id === 'config-modal-overlay') closeConfigModal();
     });
 
-    // --- 核心修复：变量名统一 ---
-    function renderDashboard(configData) { // 这里的参数改个名，避免混淆
+    function renderDashboard(configData) {
         const titleEl = document.getElementById('page-title');
         const subtitleEl = document.getElementById('page-subtitle');
 
-        // 使用传入的 configData，而不是不存在的 indexConfig
         if (titleEl) titleEl.textContent = configData.title || "Roombox Space";
         if (subtitleEl) subtitleEl.textContent = configData.subtitle || "Navigation";
 
@@ -336,31 +333,26 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // 1. 获取配置
         const config = loadConfig();
-
-        // 2. 渲染 (修复：传入正确的变量 config)
         renderDashboard(config);
 
-        // 3. 绑定按钮事件
         const homeBtn = document.getElementById('home-btn');
         const mapBtn = document.getElementById('map-btn');
         const goodLikeBtn = document.getElementById('goodlike-btn');
-        const creatorBtn = document.getElementById('creator-btn'); // [NEW] 获取新按钮
-
+        const creatorBtn = document.getElementById('creator-btn');
+        const deepThinkBtn = document.getElementById('deepthink-btn'); // [新增] 获取新按钮
 
         const imageViewer = document.getElementById('image-viewer');
         const closeBtn = document.getElementById('close-btn');
         const mainContainer = document.getElementById('main-container');
         const externalFrame = document.getElementById('external-frame');
 
-
-        // [Refactor] 定义子页面路由常量，避免硬编码，方便维护
+        // [路由配置] 集中管理路径
         const ROUTES = {
             goodLike: 'pags/commonWeb/commonWeb.html',
-            creator: 'pags/CreatorStudio.html'
+            creator: 'pags/CreatorStudio.html',
+            deepThink: 'pags/common-prompt.html' // [新增] 新页面路径
         };
-
 
         function resetView() {
             document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
@@ -377,14 +369,11 @@
             });
         }
 
-        // Good Like (需显式设置 src，防止停留在 Creator 页面)
         if (goodLikeBtn) {
             goodLikeBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 resetView();
                 this.classList.add('active');
-
-                // 只有当 src 不一致时才重新加载，优化性能
                 if (!externalFrame.src.includes(ROUTES.goodLike)) {
                     externalFrame.src = ROUTES.goodLike;
                 }
@@ -392,14 +381,11 @@
             });
         }
 
-        // [NEW] Creator Studio Logic
         if (creatorBtn) {
             creatorBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 resetView();
                 this.classList.add('active');
-
-                // 切换 iframe 地址到 CreatorStudio
                 if (!externalFrame.src.includes(ROUTES.creator)) {
                     externalFrame.src = ROUTES.creator;
                 }
@@ -407,7 +393,18 @@
             });
         }
 
-
+        // [新增] DeepThink Prompt 事件处理
+        if (deepThinkBtn) {
+            deepThinkBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                resetView();
+                this.classList.add('active');
+                if (!externalFrame.src.includes(ROUTES.deepThink)) {
+                    externalFrame.src = ROUTES.deepThink;
+                }
+                externalFrame.style.display = 'block';
+            });
+        }
 
         if (mapBtn) {
             mapBtn.addEventListener('click', function(e) {

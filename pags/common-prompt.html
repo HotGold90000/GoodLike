@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepThink 通识提问逻辑构建器</title>
+    <style>
+        :root {
+            --primary: #10b981; /* 翡翠绿 */
+            --primary-hover: #059669;
+            --bg: #f0fdf4; /* 极淡的绿色背景 */
+            --card: #ffffff;
+            --text: #374151;
+            --border: #d1fae5;
+            /* 护眼色定义 - 预览区 */
+            --eye-protect-bg: #cce8cf; /* 经典的豆沙绿 */
+            --eye-protect-text: #143625;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            box-sizing: border-box;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            gap: 20px;
+            height: 100%;
+        }
+
+        /* --- 左侧编辑区 --- */
+        .input-panel {
+            flex: 1;
+            background: var(--card);
+            border-radius: 12px;
+            padding: 30px;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        h2 { margin: 0; font-size: 1.4rem; color: #064e3b; border-bottom: 2px solid #ecfdf5; padding-bottom: 15px; }
+
+        /* 模块标题 */
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: #059669;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            background: #ecfdf5;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        .module-num {
+            background: #059669;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; color: #374151; }
+        .sub-label { font-size: 0.85rem; color: #6b7280; font-weight: 400; margin-top: -4px; margin-bottom: 8px; display: block; }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            font-family: inherit;
+            background: #f9fafb;
+            color: #1f2937;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        /* 针对 placeholder 的样式优化 */
+        ::placeholder { color: #9ca3af; opacity: 1; font-style: italic; }
+
+        textarea { resize: vertical; min-height: 80px; }
+
+        /* 复选框网格 */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            background: #f9fafb;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .checkbox-label:hover { background: #ecfdf5; border-color: var(--primary); }
+        .checkbox-label input { margin-right: 8px; width: auto; }
+        .checkbox-label input:checked + span { font-weight: 600; color: var(--primary); }
+
+        /* --- 右侧预览区 (豆沙绿护眼模式) --- */
+        .preview-panel {
+            flex: 1;
+            background: var(--eye-protect-bg);
+            border-radius: 12px;
+            padding: 30px;
+            color: var(--eye-protect-text);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid #b4dcb4;
+            position: relative;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #a8cfa8;
+            padding-bottom: 15px;
+        }
+        .preview-title { font-weight: 700; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
+
+        #finalPrompt {
+            flex: 1;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            color: var(--eye-protect-text);
+            resize: none;
+        }
+        #finalPrompt:focus {
+            outline: 2px solid #a8cfa8;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+        }
+
+        /* 自定义滚动条 */
+        #finalPrompt::-webkit-scrollbar { width: 8px; }
+        #finalPrompt::-webkit-scrollbar-track { background: transparent; }
+        #finalPrompt::-webkit-scrollbar-thumb { background: #8fb98f; border-radius: 4px; }
+        #finalPrompt::-webkit-scrollbar-thumb:hover { background: #7ba87b; }
+
+        .copy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .copy-btn:active { transform: translateY(0); }
+
+        .edit-hint {
+            font-size: 0.75rem;
+            color: #4b7d5b;
+            margin-left: 10px;
+            font-weight: normal;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 左侧：输入配置区 -->
+    <div class="input-panel">
+        <div>
+            <h2>🧠 DeepThink 逻辑构建器</h2>
+            <div style="font-size: 0.9rem; color: #666;">
+                不依赖特定话题，通过填充结构化指令，引导 AI 进行深度分析。
+            </div>
+        </div>
+
+        <!-- 模块一：明确 (Clarify) -->
+        <div>
+            <div class="module-header">
+                <div class="module-num">1</div>
+                <div>明确现象与边界 <span style="font-size:0.8em; font-weight:normal; margin-left:5px">(Define Boundary)</span></div>
+            </div>
+
+            <div class="form-group">
+                <label>核心疑问 (The Core Question)</label>
+                <input type="text" id="question" placeholder="一句话描述你想探究的核心现象或问题（尽量具体，避免过于空泛）" oninput="update()">
+            </div>
+
+            <div class="form-group">
+                <label>情境锚点 (Context Anchors)</label>
+                <span class="sub-label">提供具体的观察维度，避免 AI 泛泛而谈。</span>
+                <textarea id="context" placeholder="请在此描述有助于分析的具体细节：
+1. 涉及的主体特征（是谁？什么群体？什么物种？）
+2. 发生的时空背景（在什么环境下触发？）
+3. 具体的表现形式（有什么典型案例或数据支持？）" oninput="update()"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>知识基线 (Knowledge Baseline)</label>
+                <span class="sub-label">告诉 AI 你的认知水平，以节省篇幅并聚焦深层逻辑。</span>
+                <textarea id="baseline" style="min-height: 60px;" placeholder="划定认知的边界：
+1. 【已知】我不希望 AI 重复科普哪些基础常识？
+2. 【未知】我真正渴望挖掘的深层机制是什么？
+3. 【误区】我希望澄清哪些常见的错误理解？" oninput="update()"></textarea>
+            </div>
+        </div>
+
+        <!-- 模块二：提供 (Provide) -->
+        <div>
+            <div class="module-header">
+                <div class="module-num">2</div>
+                <div>提供分析框架 <span style="font-size:0.8em; font-weight:normal; margin-left:5px">(Analytical Framework)</span></div>
+            </div>
+
+            <div class="form-group">
+                <label>学科/理论视角 (多选)</label>
+                <span class="sub-label">指定 AI 戴上哪副“眼镜”来看问题。</span>
+                <div class="checkbox-grid">
+                    <label class="checkbox-label"><input type="checkbox" class="framework" value="进化心理学/演化论" onchange="update()"> 演化论/生存策略</label>
+                    <label class="checkbox-label"><input type="checkbox" class="framework" value="行为经济学" onchange="update()"> 行为经济学</label>
+                    <label class="checkbox-label"><input type="checkbox" class="framework" value="脑神经科学" onchange="update()"> 脑神经科学</label>
+                    <label class="checkbox-label"><input type="checkbox" class="framework" value="社会学/群体心理" onchange="update()"> 社会学</label>
+                    <label class="checkbox-label"><input type="checkbox" class="framework" value="博弈论" onchange="update()"> 博弈论</label>
+                    <label class="checkbox-label"><input type="checkbox" class="framework" value="历史唯物主义" onchange="update()"> 历史/文化视角</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>自定义其他视角</label>
+                <input type="text" id="customFramework" placeholder="如果上述选项不满足，请在此输入特定的理论模型或学科名称" oninput="update()">
+            </div>
+        </div>
+
+        <!-- 模块三：输出 (Output) -->
+        <div>
+            <div class="module-header">
+                <div class="module-num">3</div>
+                <div>明确期望产出 <span style="font-size:0.8em; font-weight:normal; margin-left:5px">(Format & Constraint)</span></div>
+            </div>
+
+            <div class="form-group" style="display: flex; gap: 15px;">
+                <div style="flex:1">
+                    <label>回答深度</label>
+                    <select id="depth" onchange="update()">
+                        <option value="deep" selected>深度分析 (学术/专业，引用理论)</option>
+                        <option value="pop">通俗科普 (适合大众，多用类比)</option>
+                        <option value="critical">批判性视角 (颠覆常识，挖掘反直觉)</option>
+                    </select>
+                </div>
+                <div style="flex:1">
+                    <label>输出形式</label>
+                    <select id="format" onchange="update()">
+                        <option value="text">结构化文章 (逻辑清晰)</option>
+                        <option value="list">分析大纲 (分点阐述)</option>
+                        <option value="table">对比表格 (多维比较)</option>
+                        <option value="mental_model">思维模型拆解 (底层逻辑)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 只保留了思维链选项，移除了"诊断模式"勾选框，因为它已变为默认 -->
+            <div class="form-group">
+                <label class="checkbox-label" style="background: #fff; border-color: var(--primary);">
+                    <input type="checkbox" id="cot" checked onchange="update()">
+                    <span>启用思维链 (Chain of Thought)：强迫 AI 显性展示推导过程</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧：实时预览区 -->
+    <div class="preview-panel">
+        <div class="preview-header">
+            <div class="preview-title">
+                <span>👁️ 提示词预览</span>
+                <span class="edit-hint">(结果已支持直接编辑修改)</span>
+            </div>
+            <button class="copy-btn" onclick="copyPrompt()">一键复制</button>
+        </div>
+        <!-- 支持编辑 -->
+        <textarea id="finalPrompt" spellcheck="false"></textarea>
+    </div>
+</div>
+
+<script>
+    // 标记是否用户正在手动编辑
+    let isManualEditing = false;
+    document.getElementById('finalPrompt').addEventListener('input', function() {
+        isManualEditing = true;
+    });
+
+    function update() {
+        // 1. 获取输入
+        const question = document.getElementById('question').value.trim() || "[在此处填入核心问题]";
+        const context = document.getElementById('context').value.trim() || "基于通用情境分析，无特殊背景约束。";
+        const baseline = document.getElementById('baseline').value.trim() || "我是该领域的探索者，请在解释核心原理的同时，避免过于浅显的基础科普。";
+        const customFramework = document.getElementById('customFramework').value.trim();
+        const depth = document.getElementById('depth').value;
+        const format = document.getElementById('format').value;
+        const useCoT = document.getElementById('cot').checked;
+
+        // 注意：移除了 askFirst 的获取，因为现在是强制逻辑
+
+        // 获取多选框
+        const frameworks = Array.from(document.querySelectorAll('.framework:checked')).map(el => el.value);
+        if (customFramework) frameworks.push(customFramework);
+        const frameworkStr = frameworks.length > 0 ? frameworks.join(" + ") : "综合多维视角 (由你根据问题性质自动选择最佳分析框架)";
+
+        // 2. 深度与格式映射
+        const depthMap = {
+            "pop": "通俗易懂，多用生活类比，降低认知门槛",
+            "deep": "专业严谨，引用理论依据或学术共识，剖析深层机制",
+            "critical": "具有批判性，挑战传统观点，挖掘反直觉的真相"
+        };
+
+        const formatMap = {
+            "text": "逻辑清晰的结构化文章",
+            "list": "层次分明的要点列表",
+            "table": "多维度对比分析表格",
+            "mental_model": "思维模型（Mental Model）拆解"
+        };
+
+        // 3. 构建 Prompt
+        let prompt = `## 核心指令
+你是一位通识领域的深度思考专家。请基于以下"三明确、三提供"的框架，对我提出的问题进行系统化分析。
+
+### 1. 明确现象与边界 (Boundary)
+**我的问题**：${question}
+**情境锚点**：
+${context}
+
+### 2. 明确知识基线 (Baseline)
+**我的已知与需求**：
+${baseline}
+
+### 3. 提供分析框架 (Framework)
+请重点运用以下学科或理论工具进行拆解：
+**[ ${frameworkStr} ]**
+
+---
+
+### 4. 明确期望产出 (Output)
+- **回答深度**：${depthMap[depth]}
+- **输出格式**：${formatMap[format]}
+
+`;
+
+        if (useCoT) {
+            prompt += `### 5. 思维路径要求 (Chain of Thought)
+请不要直接给出结论。请显性展示你的思考过程：
+1. **现象拆解**：将问题拆解为核心变量（如生理机制、心理动机、社会环境）。
+2. **逻辑推导**：基于选定的理论框架，推导这些变量之间的因果关系。
+3. **反直觉分析**：是否存在常识之外的解释？（如：表面是坏习惯，实则是生存策略？）
+4. **最终综合**：给出结论。
+
+`;
+        } else {
+            prompt += `### 5. 思维路径
+直接给出分析结果，无需展示中间推导过程。
+
+`;
+        }
+
+        // --- 核心修改：强制添加前置交互与约束条件 ---
+        prompt += `### 6. 前置交互 (Interaction)
+🛑 **重要**：在正式生成回答之前，请先评估上述信息是否充分。
+如果缺乏关键背景从而影响分析的准确性，请先向我提出 2-3 个关键追问。待我补充后，你再进行完整分析。
+
+### 7. 约束条件
+- 保持客观中立。
+- 如有学术争议，请列出不同流派的观点。
+`;
+
+        // 4. 渲染
+        document.getElementById('finalPrompt').value = prompt;
+    }
+
+    function copyPrompt() {
+        const text = document.getElementById('finalPrompt').value;
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            const oldText = btn.innerText;
+            btn.innerText = "已复制 ✅";
+            setTimeout(() => btn.innerText = oldText, 2000);
+        });
+    }
+
+    // 初始化运行一次
+    update();
+</script>
+
+</body>
+</html>

@@ -8,10 +8,25 @@ const commonConfig = {
             "id": "gridContainer1",
             "items": [
                 {
+                    "name": "Gemini",
+                    "url": "https://gemini.google.com/",
+                    "img": "https://assets-global.website-files.com/614c82ed388d53640613982e/65731925337413d7614c64bd_google-gemini.webp",
+                    "remark": "Gemini's deepresearch is amazing"
+                },{
                     "name": "Chatgpt",
                     "url": "https://chatgpt.com/?openaicom_referred=true",
                     "img": "https://img.icons8.com/?size=100&id=FBO05Dys9QCg&format=png&color=000000",
                     "remark": "Chatgpt"
+                },{
+                    "name": "Ai-Studio",
+                    "url": "https://aistudio.google.com/",
+                    "img": "https://static.vecteezy.com/system/resources/previews/046/861/646/original/gemini-icon-on-a-transparent-background-free-png.png",
+                    "remark": "use Gemini Preview freely"
+                },{
+                    "name": "Copilot",
+                    "url": "https://copilot.microsoft.com/",
+                    "img": "https://www.microsoft.com/en-us/microsoft-copilot/blog/wp-content/uploads/2024/09/Blog-Hero-CopilotWordmark-3840x2160-1.png",
+                    "remark": "use GPT5 freely"
                 },
                 {
                     "name": "DeepSeek",
@@ -20,22 +35,16 @@ const commonConfig = {
                     "remark": "The analysis of view info is more detailed"
                 },
                 {
-                    "name": "Gemini",
-                    "url": "https://gemini.google.com/",
-                    "img": "https://assets-global.website-files.com/614c82ed388d53640613982e/65731925337413d7614c64bd_google-gemini.webp",
-                    "remark": "Gemini's deepresearch is amazing"
+                    "name": "TongYiQianWen",
+                    "url": "https://www.qianwen.com/",
+                    "img": "https://img.alicdn.com/imgextra/i4/O1CN01P8z9P91OBXM3D0VOt_!!6000000001667-2-tps-174-60.png",
+                    "remark": "ALi"
                 },
                 {
-                    "name": "Copilot",
-                    "url": "https://copilot.microsoft.com/",
-                    "img": "https://www.microsoft.com/en-us/microsoft-copilot/blog/wp-content/uploads/2024/09/Blog-Hero-CopilotWordmark-3840x2160-1.png",
-                    "remark": "use GPT5 freely"
-                },
-                {
-                    "name": "Ai-Studio",
-                    "url": "https://aistudio.google.com/",
-                    "img": "https://static.vecteezy.com/system/resources/previews/046/861/646/original/gemini-icon-on-a-transparent-background-free-png.png",
-                    "remark": "use Gemini Preview freely"
+                    "name": "Doubao",
+                    "url": "https://www.doubao.com/",
+                    "img": "https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/doubao/chat/static/image/logo-icon-white-bg.72df0b1a.png",
+                    "remark": "Bytedance"
                 },
                 {
                     "name": "XiaoZhi",

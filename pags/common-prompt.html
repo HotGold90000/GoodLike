@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeepThink 通识提问逻辑构建器</title>
+    <!-- 引入 FontAwesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #10b981; /* 翡翠绿 */
@@ -78,7 +80,31 @@
         }
 
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95rem; color: #374151; }
+
+        /* 优化 Label 布局，支持右侧按钮 */
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        label { font-weight: 600; font-size: 0.95rem; color: #374151; margin: 0; }
+
+        /* 扩展按钮样式 */
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .expand-btn:hover {
+            color: var(--primary);
+            background: #ecfdf5;
+        }
+
         .sub-label { font-size: 0.85rem; color: #6b7280; font-weight: 400; margin-top: -4px; margin-bottom: 8px; display: block; }
 
         input[type="text"], textarea, select {
@@ -196,6 +222,96 @@
             font-weight: normal;
         }
 
+        /* --- Modal 弹窗样式 (新增) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease-out;
+        }
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 900px;
+            height: 80vh;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.95);
+            transition: transform 0.2s ease-out;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title { font-weight: 700; font-size: 1.1rem; color: #1f2937; display: flex; align-items: center; gap: 8px; }
+        .modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #6b7280; }
+        .modal-close:hover { color: #1f2937; }
+
+        .modal-body { flex: 1; padding: 0; display: flex; }
+        #modal-textarea {
+            width: 100%;
+            height: 100%;
+            padding: 24px;
+            border: none;
+            resize: none;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #374151;
+            background: #f9fafb;
+        }
+        #modal-textarea:focus { outline: none; background: #fff; }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #f9fafb;
+            border-radius: 0 0 12px 12px;
+        }
+        .btn-cancel {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-save {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-save:hover { background: var(--primary-hover); }
+
     </style>
 </head>
 <body>
@@ -217,13 +333,26 @@
                 <div>明确现象与边界 <span style="font-size:0.8em; font-weight:normal; margin-left:5px">(Define Boundary)</span></div>
             </div>
 
+            <!-- 1. 核心疑问 (优化后) -->
             <div class="form-group">
-                <label>核心疑问 (The Core Question)</label>
-                <input type="text" id="question" placeholder="一句话描述你想探究的核心现象或问题（尽量具体，避免过于空泛）" oninput="update()">
+                <div class="label-row">
+                    <label>核心疑问 (The Core Question)</label>
+                    <button class="expand-btn" onclick="openModal('question')" title="展开编辑">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                </div>
+                <!-- 这里的 input 改为 textarea 以支持多行，虽然原代码是 input，但为了统一体验建议用 textarea，如果不希望多行可改回 input -->
+                <textarea id="question" rows="2" placeholder="一句话描述你想探究的核心现象或问题（尽量具体，避免过于空泛）" oninput="update()"></textarea>
             </div>
 
+            <!-- 2. 情境锚点 (优化后) -->
             <div class="form-group">
-                <label>情境锚点 (Context Anchors)</label>
+                <div class="label-row">
+                    <label>情境锚点 (Context Anchors)</label>
+                    <button class="expand-btn" onclick="openModal('context')" title="展开编辑">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                </div>
                 <span class="sub-label">提供具体的观察维度，避免 AI 泛泛而谈。</span>
                 <textarea id="context" placeholder="请在此描述有助于分析的具体细节：
 1. 涉及的主体特征（是谁？什么群体？什么物种？）
@@ -231,8 +360,14 @@
 3. 具体的表现形式（有什么典型案例或数据支持？）" oninput="update()"></textarea>
             </div>
 
+            <!-- 3. 知识基线 (优化后) -->
             <div class="form-group">
-                <label>知识基线 (Knowledge Baseline)</label>
+                <div class="label-row">
+                    <label>知识基线 (Knowledge Baseline)</label>
+                    <button class="expand-btn" onclick="openModal('baseline')" title="展开编辑">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                </div>
                 <span class="sub-label">告诉 AI 你的认知水平，以节省篇幅并聚焦深层逻辑。</span>
                 <textarea id="baseline" style="min-height: 60px;" placeholder="划定认知的边界：
 1. 【已知】我不希望 AI 重复科普哪些基础常识？
@@ -294,7 +429,6 @@
                 </div>
             </div>
 
-            <!-- 只保留了思维链选项，移除了"诊断模式"勾选框，因为它已变为默认 -->
             <div class="form-group">
                 <label class="checkbox-label" style="background: #fff; border-color: var(--primary);">
                     <input type="checkbox" id="cot" checked onchange="update()">
@@ -318,12 +452,99 @@
     </div>
 </div>
 
+<!-- Modal 弹窗结构 -->
+<div id="editor-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span id="modal-title-text">编辑内容</span>
+            </div>
+            <button class="modal-close" onclick="closeModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <textarea id="modal-textarea" spellcheck="false"></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeModal()">取消</button>
+            <button class="btn-save" onclick="saveModal()">完成</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // 标记是否用户正在手动编辑
     let isManualEditing = false;
     document.getElementById('finalPrompt').addEventListener('input', function() {
         isManualEditing = true;
     });
+
+    // --- Modal 逻辑 (新增) ---
+    let currentEditingId = null;
+
+    function openModal(targetId) {
+        currentEditingId = targetId;
+        const sourceEl = document.getElementById(targetId);
+        const modal = document.getElementById('editor-modal');
+        const modalTextarea = document.getElementById('modal-textarea');
+        const modalTitle = document.getElementById('modal-title-text');
+
+        // 获取标题文本 (从 label 获取)
+        const labelEl = sourceEl.parentElement.querySelector('label');
+        if (labelEl) {
+            modalTitle.textContent = labelEl.textContent;
+        } else {
+            // 兼容 Context 和 Baseline 结构中 button 在 label-row 内的情况
+            const labelRowLabel = sourceEl.parentElement.querySelector('.label-row label');
+            if (labelRowLabel) {
+                modalTitle.textContent = labelRowLabel.textContent;
+            } else {
+                modalTitle.textContent = "编辑内容";
+            }
+        }
+
+        modalTextarea.value = sourceEl.value;
+        modal.classList.add('active');
+        modalTextarea.focus();
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('editor-modal');
+        modal.classList.remove('active');
+        currentEditingId = null;
+    }
+
+    function saveModal() {
+        if (currentEditingId) {
+            const val = document.getElementById('modal-textarea').value;
+            document.getElementById(currentEditingId).value = val;
+            update(); // 触发更新
+        }
+        closeModal();
+    }
+
+    // 点击遮罩层关闭
+    document.getElementById('editor-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    // 快捷键支持 (Esc 关闭, Ctrl+Enter 保存)
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('editor-modal');
+        if (!modal.classList.contains('active')) return;
+
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            saveModal();
+        }
+    });
+
 
     function update() {
         // 1. 获取输入
@@ -334,8 +555,6 @@
         const depth = document.getElementById('depth').value;
         const format = document.getElementById('format').value;
         const useCoT = document.getElementById('cot').checked;
-
-        // 注意：移除了 askFirst 的获取，因为现在是强制逻辑
 
         // 获取多选框
         const frameworks = Array.from(document.querySelectorAll('.framework:checked')).map(el => el.value);
@@ -397,9 +616,8 @@ ${baseline}
 `;
         }
 
-        // --- 核心修改：强制添加前置交互与约束条件 ---
         prompt += `### 6. 前置交互 (Interaction)
-🛑 **重要**：在正式生成回答之前，请先评估上述信息是否充分。
+**重要**：在正式生成回答之前，请先评估上述信息是否充分。
 如果缺乏关键背景从而影响分析的准确性，请先向我提出 2-3 个关键追问。待我补充后，你再进行完整分析。
 
 ### 7. 约束条件

@@ -130,21 +130,42 @@
 
         textarea { resize: vertical; min-height: 80px; }
 
+        /* --- 分组样式优化 (NEW) --- */
+        .category-group {
+            margin-bottom: 15px;
+            border: 1px solid #f3f4f6;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fff;
+        }
+        .category-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #6b7280;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .category-title i { color: var(--primary); opacity: 0.7; }
+
         /* 复选框网格 */
         .checkbox-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
+            gap: 8px;
         }
         .checkbox-label {
             display: flex;
             align-items: center;
             background: #f9fafb;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 6px;
             border: 1px solid #e5e7eb;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
         }
         .checkbox-label:hover { background: #ecfdf5; border-color: var(--primary); }
@@ -222,7 +243,7 @@
             font-weight: normal;
         }
 
-        /* --- Modal 弹窗样式 (新增) --- */
+        /* --- Modal 弹窗样式 --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -333,7 +354,7 @@
                 <div>明确现象与边界 <span style="font-size:0.8em; font-weight:normal; margin-left:5px">(Define Boundary)</span></div>
             </div>
 
-            <!-- 1. 核心疑问 (优化后) -->
+            <!-- 1. 核心疑问 -->
             <div class="form-group">
                 <div class="label-row">
                     <label>核心疑问 (The Core Question)</label>
@@ -341,11 +362,10 @@
                         <i class="fa-solid fa-expand"></i>
                     </button>
                 </div>
-                <!-- 这里的 input 改为 textarea 以支持多行，虽然原代码是 input，但为了统一体验建议用 textarea，如果不希望多行可改回 input -->
                 <textarea id="question" rows="2" placeholder="一句话描述你想探究的核心现象或问题（尽量具体，避免过于空泛）" oninput="update()"></textarea>
             </div>
 
-            <!-- 2. 情境锚点 (优化后) -->
+            <!-- 2. 情境锚点 -->
             <div class="form-group">
                 <div class="label-row">
                     <label>情境锚点 (Context Anchors)</label>
@@ -360,7 +380,7 @@
 3. 具体的表现形式（有什么典型案例或数据支持？）" oninput="update()"></textarea>
             </div>
 
-            <!-- 3. 知识基线 (优化后) -->
+            <!-- 3. 知识基线 -->
             <div class="form-group">
                 <div class="label-row">
                     <label>知识基线 (Knowledge Baseline)</label>
@@ -384,16 +404,46 @@
             </div>
 
             <div class="form-group">
-                <label>学科/理论视角 (多选)</label>
-                <span class="sub-label">指定 AI 戴上哪副“眼镜”来看问题。</span>
-                <div class="checkbox-grid">
-                    <label class="checkbox-label"><input type="checkbox" class="framework" value="进化心理学/演化论" onchange="update()"> 演化论/生存策略</label>
-                    <label class="checkbox-label"><input type="checkbox" class="framework" value="行为经济学" onchange="update()"> 行为经济学</label>
-                    <label class="checkbox-label"><input type="checkbox" class="framework" value="脑神经科学" onchange="update()"> 脑神经科学</label>
-                    <label class="checkbox-label"><input type="checkbox" class="framework" value="社会学/群体心理" onchange="update()"> 社会学</label>
-                    <label class="checkbox-label"><input type="checkbox" class="framework" value="博弈论" onchange="update()"> 博弈论</label>
-                    <label class="checkbox-label"><input type="checkbox" class="framework" value="历史唯物主义" onchange="update()"> 历史/文化视角</label>
+                <label style="margin-bottom: 10px; display:block;">学科/理论视角 (多选)</label>
+
+                <!-- Group 1: 自然科学 -->
+                <div class="category-group">
+                    <div class="category-title"><i class="fa-solid fa-atom"></i> 自然科学 & 底层规律</div>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="物理学" onchange="update()"> <span>物理学</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="数学" onchange="update()"> <span>数学</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="化学" onchange="update()"> <span>化学</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="生物学" onchange="update()"> <span>生物学</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="天文学" onchange="update()"> <span>天文学</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="脑神经科学" onchange="update()"> <span>脑神经科学</span></label>
+                    </div>
                 </div>
+
+                <!-- Group 2: 社会科学 -->
+                <div class="category-group">
+                    <div class="category-title"><i class="fa-solid fa-users"></i> 社会科学 & 人类行为</div>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="进化心理学/演化论" onchange="update()"> <span>演化论/生存策略</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="行为经济学" onchange="update()"> <span>行为经济学</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="行为心理学" onchange="update()"> <span>行为心理学</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="社会学/群体心理" onchange="update()"> <span>社会学</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="博弈论" onchange="update()"> <span>博弈论</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="历史唯物主义" onchange="update()"> <span>历史/文化视角</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="人类学/符号学" onchange="update()"> <span>人类学/符号学</span></label> <!-- NEW -->
+                    </div>
+                </div>
+
+                <!-- Group 3: 哲学与系统 -->
+                <div class="category-group">
+                    <div class="category-title"><i class="fa-solid fa-brain"></i> 哲学、逻辑与系统论</div>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="第一性原理" onchange="update()"> <span>第一性原理</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="哲学/伦理学" onchange="update()"> <span>哲学/伦理学</span></label>
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="系统论/控制论" onchange="update()"> <span>系统论/反馈回路</span></label> <!-- NEW -->
+                        <label class="checkbox-label"><input type="checkbox" class="framework" value="复杂性科学/混沌理论" onchange="update()"> <span>复杂性/涌现</span></label> <!-- NEW -->
+                    </div>
+                </div>
+
             </div>
 
             <div class="form-group">
@@ -421,9 +471,9 @@
                 <div style="flex:1">
                     <label>输出形式</label>
                     <select id="format" onchange="update()">
-                        <option value="text">结构化文章 (逻辑清晰)</option>
+                        <option value="text">结构化文章 (逻辑清晰), 内容中如有必要，可使用多维度对比分析表格</option>
                         <option value="list">分析大纲 (分点阐述)</option>
-                        <option value="table">对比表格 (多维比较)</option>
+<!--                        <option value="table">对比表格 (多维比较)</option>-->
                         <option value="mental_model">思维模型拆解 (底层逻辑)</option>
                     </select>
                 </div>
@@ -481,7 +531,7 @@
         isManualEditing = true;
     });
 
-    // --- Modal 逻辑 (新增) ---
+    // --- Modal 逻辑 ---
     let currentEditingId = null;
 
     function openModal(targetId) {

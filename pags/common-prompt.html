@@ -471,7 +471,7 @@
                 <div style="flex:1">
                     <label>输出形式</label>
                     <select id="format" onchange="update()">
-                        <option value="text">结构化文章 (逻辑清晰), 内容中如有必要，可使用多维度对比分析表格</option>
+                        <option value="text">结构化文章 (逻辑清晰)</option>
                         <option value="list">分析大纲 (分点阐述)</option>
 <!--                        <option value="table">对比表格 (多维比较)</option>-->
                         <option value="mental_model">思维模型拆解 (底层逻辑)</option>
@@ -619,9 +619,9 @@
         };
 
         const formatMap = {
-            "text": "逻辑清晰的结构化文章",
+            "text": "逻辑清晰的结构化文章, 内容中如有必要，可使用多维度对比分析表格",
             "list": "层次分明的要点列表",
-            "table": "多维度对比分析表格",
+            // "table": "多维度对比分析表格",
             "mental_model": "思维模型（Mental Model）拆解"
         };
 

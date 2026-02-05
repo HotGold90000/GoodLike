@@ -4,7 +4,7 @@
 const commonConfig = {
     "sections": [
         {
-            "title": "Robots",
+            "title": "ROBOT",
             "id": "gridContainer1",
             "items": [
                 {
@@ -55,7 +55,7 @@ const commonConfig = {
             ]
         },
         {
-            "title": "Readings",
+            "title": "READING",
             "id": "gridContainer4",
             "items": [
                 {
@@ -91,7 +91,7 @@ const commonConfig = {
             ]
         },
         {
-            "title": "VIDEOS",
+            "title": "VIDEO",
             "id": "gridContainer5",
             "items": [
                 {
@@ -103,7 +103,7 @@ const commonConfig = {
             ]
         },
         {
-            "title": "Tools-Pic",
+            "title": "TOOL-PIC",
             "id": "gridContainer6",
             "items": [
                 {

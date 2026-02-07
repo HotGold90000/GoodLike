@@ -65,6 +65,12 @@ const commonConfig = {
                     "remark": "Dialect record"
                 },
                 {
+                    "name": "YABook",
+                    "url": "https://yabook.blog/",
+                    "img": "https://yabook.blog/skin/Yabook/include/yabook.png",
+                    "remark": "Find valuable info"
+                },
+                {
                     "name": "Reddit",
                     "url": "https://www.reddit.com/",
                     "img": "https://www.svgrepo.com/show/349489/reddit.svg",

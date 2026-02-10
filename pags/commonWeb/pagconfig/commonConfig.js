@@ -59,10 +59,10 @@ const commonConfig = {
             "id": "gridContainer4",
             "items": [
                 {
-                    "name": "DialectLang",
-                    "url": "https://hotgold90000.github.io/DilalectLang/",
-                    "img": "https://ts1.tc.mm.bing.net/th/id/R-C.1dc18b23a16a216ad63874ea083ece8c?rik=XAx8qWkgvj2b7w&riu=http%3a%2f%2fpic.xfdown.com%2fuploads%2f2023-1%2f2023151732563405.png&ehk=qfX2rc6XY%2fmDj3J%2faJli5tdwU%2fNJ4OcDraSHtUH%2flq0%3d&risl=&pid=ImgRaw&r=0",
-                    "remark": "Dialect record"
+                    "name": "Tophub",
+                    "url": "https://tophub.today/",
+                    "img": "https://file.ipadown.com/tophub/assets/images/logo.png",
+                    "remark": "News and article"
                 },
                 {
                     "name": "YABook",
@@ -77,22 +77,15 @@ const commonConfig = {
                     "remark": "Info community"
                 },
                 {
-                    "name": "Tophub",
-                    "url": "https://tophub.today/",
-                    "img": "https://file.ipadown.com/tophub/assets/images/logo.png",
-                    "remark": "News and article"
-                },
-                {
                     "name": "Wikipedia",
                     "url": "https://www.wikipedia.org/",
                     "img": "https://zh.wikipedia.org/static/images/icons/wikipedia.png",
                     "remark": "Req scient net"
-                },
-                {
-                    "name": "Quora",
-                    "url": "https://www.quora.com/",
-                    "img": "https://ts4.tc.mm.bing.net/th/id/OSAAS.777FC27383CA52BA3DF3AB04CAB4F66B?w=72&h=72&c=1&rs=1&o=6&pid=TechQna",
-                    "remark": "Info community"
+                },{
+                    "name": "DialectLang",
+                    "url": "https://hotgold90000.github.io/DilalectLang/",
+                    "img": "https://ts1.tc.mm.bing.net/th/id/R-C.1dc18b23a16a216ad63874ea083ece8c?rik=XAx8qWkgvj2b7w&riu=http%3a%2f%2fpic.xfdown.com%2fuploads%2f2023-1%2f2023151732563405.png&ehk=qfX2rc6XY%2fmDj3J%2faJli5tdwU%2fNJ4OcDraSHtUH%2flq0%3d&risl=&pid=ImgRaw&r=0",
+                    "remark": "Dialect record"
                 }
             ]
         },
